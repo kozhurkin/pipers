@@ -10,9 +10,12 @@ type PiperSolver[R any] struct {
 	concurrency int
 	context     context.Context
 	once        sync.Once
+	mu          sync.RWMutex
 }
 
 func (ps *PiperSolver[R]) Add(p Piper[R]) *PiperSolver[R] {
+	ps.mu.RLock()
+	defer ps.mu.RUnlock()
 	ps.Pipers = append(ps.Pipers, p)
 	return ps
 }

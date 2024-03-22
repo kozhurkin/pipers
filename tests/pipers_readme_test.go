@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/kozhurkin/async"
+	"net/http"
+	"os"
 	"testing"
 	"time"
 )
@@ -29,7 +31,56 @@ func TestReadmeExample(t *testing.T) {
 	fmt.Println(results, err) // [14.2e9 8.4e9 6.2e9] <nil>
 }
 
-func TestReadmeExample2(t *testing.T) {
+func TestReadmeExampleUrls(t *testing.T) {
+	ts := time.Now()
+	urls := []string{
+		"https://nodejs.org",
+		"https://go.dev",
+		"https://vuejs.org",
+		"https://clickhouse.com",
+		"https://invalid.link",
+		"https://github.com",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pp := pipers.FromSlice(urls, func(i int, url string) (int, error) {
+		res, err := http.Get(url)
+		if err != nil {
+			return -1, err
+		}
+		return res.StatusCode, err
+	})
+
+	pp.Context(ctx).Concurrency(2)
+
+	results, err := pp.Resolve()
+
+	fmt.Println(time.Since(ts), results, err)
+	// 558.88ms [200 200 200 0 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+}
+
+func TestReadmeExampleRef(t *testing.T) {
+	var resp *http.Response
+	var file []byte
+	var number int
+
+	pp := pipers.FromFuncs(
+		pipers.Ref(&resp, func() (*http.Response, error) { return http.Get("https://github.com") }),
+		pipers.Ref(&file, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
+		pipers.Ref(&number, func() (int, error) { return 777, nil }),
+	)
+
+	results, _ := pp.Run().Resolve()
+
+	fmt.Printf("results:  %T, %v \n", results, len(results)) // results: []interface {}, 3
+	fmt.Printf("resp:     %T, %v \n", resp, resp.Status)     // resp:    *http.Response, 200 OK
+	fmt.Printf("file:     %T, %v \n", file, len(file))       // file:    []uint8, 213
+	fmt.Printf("number:   %T, %v \n", number, number)        // number:  int, 777
+}
+
+func TestReadmeExampleDelays(t *testing.T) {
 	ts := time.Now()
 	delays := []int{3, 6, 2, 4, 1, 5, 1}
 
@@ -48,13 +99,14 @@ func TestReadmeExample2(t *testing.T) {
 
 	fmt.Println(results, err, time.Since(ts))
 
-	// func(0, 3) 0.00s
-	// func(1, 6) 0.00s
-	// func(2, 2) 0.00s
-	// func(3, 4) 2.00s
-	// func(4, 1) 3.00s
-	// func(5, 5) 4.00s
-	// [3 0 2 0 1 0] context deadline exceeded 5.00s
+	/*	func(0, 3) 0.00s
+		func(1, 6) 0.00s
+		func(2, 2) 0.00s
+		func(3, 4) 2.00s
+		func(4, 1) 3.00s
+		func(5, 5) 4.00s
+		[3 0 2 0 1 0] context deadline exceeded 5.00s
+	*/
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
