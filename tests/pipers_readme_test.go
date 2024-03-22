@@ -1,11 +1,53 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"github.com/kozhurkin/async"
 	"testing"
 	"time"
 )
+
+func TestReadmeExample(t *testing.T) {
+	videos := []string{"XqZsoesa55w", "kJQP7kiw5Fk", "RgKAFK5djSk"}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pp := pipers.FromSlice(videos, func(i int, vid string) (int, error) {
+		views, err := youtube.GetViews(vid)
+		if err != nil {
+			return 0, err
+		}
+		return views, nil
+	})
+
+	pp.Context(ctx).Concurrency(2)
+
+	results, err := pp.Resolve()
+
+	fmt.Println(results, err) // [14.2e9 8.4e9 6.2e9] <nil>
+}
+
+func TestReadmeExample2(t *testing.T) {
+	ts := time.Now()
+	delays := []int{3, 1, 6, 2, 4, 1}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pp := pipers.FromSlice(delays, func(i int, delay int) (float64, error) {
+		time.Sleep(time.Duration(delay) * time.Second)
+		return float64(delay), nil
+	})
+
+	pp.Context(ctx).Concurrency(3)
+
+	results, err := pp.Resolve()
+
+	fmt.Println(results, err, time.Since(ts))
+	// [3 1 0 2 0 1] context deadline exceeded 5.00s
+}
 
 func TestReadmeFromFuncs(t *testing.T) {
 	ts := time.Now()
@@ -26,7 +68,7 @@ func TestReadmeFromSlice(t *testing.T) {
 	args := []int{1, 2, 3, 4, 5}
 
 	pp := pipers.FromSlice(args, func(i int, a int) (int, error) {
-		<-time.After(time.Duration(i) * time.Second)
+		time.Sleep(time.Duration(i) * time.Second)
 		return a * a, nil
 	})
 

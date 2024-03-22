@@ -5,10 +5,9 @@ parallelism helper powered by generics
 #### Why is pipers better than sync.WaitGroup or errgroup.Group?
 ✔ Because pipers can catch errors.\
 ✔ Pipers knows how to return a caught error immediately, without waiting for a response from parallel goroutines.\
-✔ Pipers knows how to take a context as an argument and handle its termination. `.Context()`\
-✔ Pipers knows how to limit the number of simultaneously executed goroutines. `.Concurrecy()`\
-✔ Pipers allows you to set the number of errors you want to return.\
-`.FirstError()` `.FirstNErrors()` `.ErrorsAll()`\
+✔ Pipers knows how to take a context as an argument and handle its termination. `.Context(ctx)`\
+✔ Pipers knows how to limit the number of simultaneously executed goroutines. `.Concurrecy(n)`\
+✔ Pipers allows you to set the number of errors you want to return. `.FirstError()` `.FirstNErrors(n)` `.ErrorsAll()`\
 ✔ Pipers allow you to write cleaner and more compact code.
 
 Installing
@@ -19,10 +18,31 @@ Installing
 Usage
 -----
 
-* `FromFuncs()`
-* `FromSlice()`
+``` golang
+import github.com/kozhurkin/async/pipers
 
-#### FromFuncs()
+func main() {
+    ts := time.Now()
+    delays := []int{3, 1, 6, 2, 4, 1}
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    pp := pipers.FromSlice(delays, func(i int, delay int) (float64, error) {
+        time.Sleep(time.Duration(delay) * time.Second)
+        return float64(delay), nil
+    })
+
+    pp.Context(ctx).Concurrency(3)
+
+    results, err := pp.Resolve()
+
+    fmt.Println(results, err, time.Since(ts))
+    // [3 1 0 2 0 1] context deadline exceeded 5.00s
+}
+```
+
+#### pipers.FromFuncs()
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -42,7 +62,7 @@ func main() {
 }
 ```
 
-#### FromSlice()
+#### pipers.FromSlice()
 ``` golang
 import github.com/kozhurkin/async/pipers
 
