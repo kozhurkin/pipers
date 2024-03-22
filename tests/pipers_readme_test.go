@@ -31,12 +31,13 @@ func TestReadmeExample(t *testing.T) {
 
 func TestReadmeExample2(t *testing.T) {
 	ts := time.Now()
-	delays := []int{3, 1, 6, 2, 4, 1}
+	delays := []int{3, 6, 2, 4, 1, 5}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	pp := pipers.FromSlice(delays, func(i int, delay int) (float64, error) {
+		fmt.Printf("func(%v, %v) %v\n", i, delay, time.Since(ts))
 		time.Sleep(time.Duration(delay) * time.Second)
 		return float64(delay), nil
 	})
@@ -46,7 +47,14 @@ func TestReadmeExample2(t *testing.T) {
 	results, err := pp.Resolve()
 
 	fmt.Println(results, err, time.Since(ts))
-	// [3 1 0 2 0 1] context deadline exceeded 5.00s
+
+	// func(0, 3) 0.00s
+	// func(1, 6) 0.00s
+	// func(2, 2) 0.00s
+	// func(3, 4) 2.00s
+	// func(4, 1) 3.00s
+	// func(5, 5) 4.00s
+	// [3 0 2 0 1 0] context deadline exceeded 5.00s
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
