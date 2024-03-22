@@ -9,7 +9,6 @@ import (
 
 func TestReadmeFromFuncs(t *testing.T) {
 	ts := time.Now()
-
 	pp := pipers.FromFuncs(
 		func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
 		func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },

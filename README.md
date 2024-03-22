@@ -2,8 +2,14 @@
 
 parallelism helper powered by generics
 
-* `FromFuncs()`
-* `FromSlice()`
+#### Why is pipers better than sync.WaitGroup or errgroup.Group?
+✔ Because pipers can catch errors.\
+✔ Pipers knows how to return a caught error immediately, without waiting for a response from parallel goroutines.\
+✔ Pipers knows how to take a context as an argument and handle its termination. `.Context()`\
+✔ Pipers knows how to limit the number of simultaneously executed goroutines. `.Concurrecy()`\
+✔ Pipers allows you to set the number of errors you want to return.\
+`.FirstError()` `.FirstNErrors()` `.ErrorsAll()`\
+✔ Pipers allow you to write cleaner and more compact code.
 
 Installing
 ----------
@@ -12,6 +18,9 @@ Installing
 
 Usage
 -----
+
+* `FromFuncs()`
+* `FromSlice()`
 
 #### FromFuncs()
 ``` golang
