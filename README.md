@@ -12,6 +12,7 @@ Installing
 
 Usage
 -----
+
 #### FromFuncs()
 ``` golang
 import github.com/kozhurkin/async/pipers
@@ -20,14 +21,15 @@ func main() {
 	ts := time.Now()
 
 	pp := pipers.FromFuncs(
-		func() (string, error) { <-time.After(2 * time.Second); return "Happy", nil },
-		func() (string, error) { <-time.After(3 * time.Second); return "New", nil },
-		func() (string, error) { <-time.After(1 * time.Second); return "Year!", nil },
+		func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
+		func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },
+		func() (string, error) { time.Sleep(2 * time.Second); return "Year", nil },
+		func() (string, error) { time.Sleep(4 * time.Second); return "!", nil },
 	)
 
 	results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts)) // [Happy New Year!] <nil> 3.00s
+	fmt.Println(results, err, time.Since(ts)) // [Happy New Year !] <nil> 4.00s
 }
 ```
 
