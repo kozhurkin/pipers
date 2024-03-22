@@ -31,7 +31,7 @@ func TestReadmeExample(t *testing.T) {
 
 func TestReadmeExample2(t *testing.T) {
 	ts := time.Now()
-	delays := []int{3, 6, 2, 4, 1, 5}
+	delays := []int{3, 6, 2, 4, 1, 5, 1}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

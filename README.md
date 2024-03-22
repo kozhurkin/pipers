@@ -15,7 +15,7 @@ Installing
 
 	go get github.com/kozhurkin/pipers
 
-Usage
+Exaample
 -----
 
 ``` golang
@@ -49,6 +49,16 @@ func main() {
     // [3 0 2 0 1 0] context deadline exceeded 5.00s
 }
 ```
+
+Usage
+-----
+
+* `pipers.FromFuncs(funcs)`
+* `pipers.FromArgs(args, handler)`
+* `pp.Concurrency(n)`
+* `pp.Context(ctx)`
+* `pp.FirstNErrors()`
+* `pp.ErrorsAll()`
 
 #### pipers.FromFuncs()
 ``` golang
