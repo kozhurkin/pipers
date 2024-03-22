@@ -1,22 +1,13 @@
-# pipers
+package tests
 
-parallelism helper powered by generics
+import (
+	"fmt"
+	"github.com/kozhurkin/async"
+	"testing"
+	"time"
+)
 
-* `FromFuncs()`
-* `FromSlice()`
-
-Installing
-----------
-
-	go get github.com/kozhurkin/pipers
-
-Usage
------
-#### FromFuncs()
-``` golang
-import github.com/kozhurkin/async/pipers
-
-func main() {
+func TestReadmeFromFuncs(t *testing.T) {
 	ts := time.Now()
 
 	pp := pipers.FromFuncs(
@@ -29,13 +20,8 @@ func main() {
 
 	fmt.Println(results, err, time.Since(ts)) // [Happy New Year!] <nil> 3.00s
 }
-```
 
-#### FromSlice()
-``` golang
-import github.com/kozhurkin/async/pipers
-
-func main() {
+func TestReadmeFromSlice(t *testing.T) {
 	ts := time.Now()
 	args := []int{1, 2, 3, 4, 5}
 
@@ -48,4 +34,3 @@ func main() {
 
 	fmt.Println(results, err, time.Since(ts)) // [1 4 9 16 25] <nil> 4.00s
 }
-```
