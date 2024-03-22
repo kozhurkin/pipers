@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  test:
+    cmds:
+      - go test ./tests -run=. -v -race -count=1
+
+  bench:
+    cmds:
+      - go test ./tests -run=- -v -bench=. -benchmem -benchtime=100x -race

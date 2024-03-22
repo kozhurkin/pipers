@@ -1,0 +1,29 @@
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Test
+        run: |
+          go mod download
+          go test ./tests -run=. -v -race -count=1
+
+      - name: Benchmark
+        run: |
+          go mod download
+          go test ./tests -run=- -v -bench=. -benchmem -benchtime=100x -race
