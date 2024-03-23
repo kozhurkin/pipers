@@ -16,7 +16,7 @@ Installing
 	go get github.com/kozhurkin/pipers
 
 Example
------
+-------
 
 ``` golang
 import github.com/kozhurkin/pipers
@@ -50,7 +50,7 @@ Usage
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)
 
-#### pipers.FromFuncs(funcs)
+### pipers.FromFuncs(funcs)
 ``` golang
 import github.com/kozhurkin/pipers
 
@@ -80,7 +80,7 @@ func main() {
 }
 ```
 
-#### pipers.FromArgs(args, handlers)
+### pipers.FromArgs(args, handlers)
 ``` golang
 import github.com/kozhurkin/pipers
 
@@ -101,7 +101,7 @@ func main() {
 }
 ```
 
-#### pipers.Ref(&v, func)
+### pipers.Ref(&v, func)
 Helper for specifying values by pointer.
 It can be more convenient than type conversion.
 ``` golang
@@ -138,7 +138,7 @@ func main() {
 }
 ```
 
-#### pp.Concurrency(n)
+### pp.Concurrency(n)
 Allows you to limit `n` the number of simultaneously executed goroutines.\
 `1` - means that goroutines will be executed one by one.\
 `0` - means that all the goroutines will run at once simultaneously in parallel.
@@ -179,7 +179,7 @@ func main() {
 }
 ```
 
-#### pp.Context(ctx)
+### pp.Context(ctx)
 Allows you to take a context as an argument and handle its termination.\
 Сan be used, for example, to specify a timeout `context.WithTimeout`.
 ``` golang
@@ -214,7 +214,7 @@ func main() {
 }
 ```
 
-#### pp.FirstNErrors(n)
+### pp.FirstNErrors(n)
 Allows you to set `n` the number of errors you want to return.\
 `0` - will return any errors that have occurred.\
 If there were no errors, the method returns `nil`.
@@ -240,7 +240,7 @@ func main() {
 }
 ```
 
-#### pp.ErrorsAll()
+### pp.ErrorsAll()
 Returns all errors that occurred. Similar to `pp.FirstNErrors(0)`.\
 Note that if the context is canceled, only the errors that were received at the moment of cancelation will be returned.
 ``` golang
