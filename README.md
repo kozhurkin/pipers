@@ -65,7 +65,7 @@ Usage
 ✔ `pipers.Ref(&v, func)`\
 ✔ `pp.Context(ctx)`\
 ✔ `pp.Concurrency(n)`\
-✔ `pp.FirstNErrors()`\
+✔ `pp.FirstNErrors(n)`\
 ✔ `pp.ErrorsAll()`
 
 #### pipers.FromFuncs(funcs)
@@ -127,7 +127,7 @@ func main() {
         pipers.Ref(&c, func() (int, error) { return 777, nil }),
     )
 
-    results, _ := pp.Run().Resolve()
+    results, _ := pp.Resolve()
 
     fmt.Printf("results:  %T, %v \n", results, len(results))
     fmt.Printf("a:        %T, %v \n", a, a.Status)
@@ -184,6 +184,19 @@ func main() {
 
 Allows you to limit `n` the number of simultaneously executed goroutines.
 `1` - means that goroutines will be executed one by one. `0` - means that all the goroutines will run at once simultaneously in parallel.
+``` golang
+
+```
+
+#### pp.FirstNErrors(n)
+
+Allows you to set `n` the number of errors you want to return.
+`0` - will return any errors that have occurred. If there were no errors, the method returns nil.
+``` golang
+
+```
+#### pp.ErrorsAll()
+Returns all errors that occurred. Similar to `pp.FirstNErrors(0)`.
 ``` golang
 
 ```
