@@ -24,7 +24,7 @@ import github.com/kozhurkin/async/pipers
 func main() {
 
     ts := time.Now()
-    args := []string{"parallelism", "helper", "powered", "by", "generics"}
+    args := []string{"pipers", "is", "parallelism", "helper", "powered", "by", "generics"}
 
     pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
         length := len(word)
@@ -35,7 +35,7 @@ func main() {
 
     results, err := pp.Resolve()
 
-    fmt.Println(results, err, time.Since(ts)) // [11 6 7 2 8] <nil> 11.00s
+    fmt.Println(results, err, time.Since(ts)) // [6 2 11 6 7 2 8] <nil> 11.00s
 }
 ```
 
