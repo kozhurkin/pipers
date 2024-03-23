@@ -94,7 +94,8 @@ func main() {
 ```
 
 #### pipers.Ref(&v, func)
-Helper for specifying values by pointer. It can be more convenient than type conversion.
+Helper for specifying values by pointer.
+It can be more convenient than type conversion.
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -129,7 +130,8 @@ func main() {
 ```
 
 #### pp.Context(ctx)
-Allows you to take a context as an argument and handle its termination. Сan be used, for example, to specify a timeout `context.WithTimeout`.
+Allows you to take a context as an argument and handle its termination.\
+Сan be used, for example, to specify a timeout `context.WithTimeout`.
 
 ``` golang
 import github.com/kozhurkin/async/pipers
@@ -164,8 +166,9 @@ func main() {
 ```
 #### pp.Concurrency(n)
 
-Allows you to limit `n` the number of simultaneously executed goroutines.
-`1` - means that goroutines will be executed one by one. `0` - means that all the goroutines will run at once simultaneously in parallel.
+Allows you to limit `n` the number of simultaneously executed goroutines.\
+`1` - means that goroutines will be executed one by one.\
+`0` - means that all the goroutines will run at once simultaneously in parallel.
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -205,13 +208,15 @@ func main() {
 
 #### pp.FirstNErrors(n)
 
-Allows you to set `n` the number of errors you want to return.
-`0` - will return any errors that have occurred. If there were no errors, the method returns nil.
+Allows you to set `n` the number of errors you want to return.\
+`0` - will return any errors that have occurred.\
+If there were no errors, the method returns `nil`.
 ``` golang
 
 ```
 #### pp.ErrorsAll()
-Returns all errors that occurred. Similar to `pp.FirstNErrors(0)`.
+Returns all errors that occurred.\
+Similar to `pp.FirstNErrors(0)`.
 ``` golang
 
 ```
