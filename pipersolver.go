@@ -30,12 +30,20 @@ func (ps *PiperSolver[R]) Concurrency(concurrency int) *PiperSolver[R] {
 	return ps
 }
 
-func (ps *PiperSolver[R]) getContext() context.Context {
-	if ps.context != nil {
-		return ps.context
-	} else {
-		return context.Background()
+func (ps *PiperSolver[R]) Run(ctx PipersContext) {
+	ps.once.Do(func() {
+		ps.Pipers.Run(ctx, ps.concurrency)
+	})
+}
+
+func (ps *PiperSolver[R]) createContextWithCancelAndLimit(n int) (PipersContext, context.CancelFunc) {
+	var cancel context.CancelFunc
+	ctx := ps.context
+	if ps.context == nil {
+		ctx = context.Background()
 	}
+	ctx, cancel = context.WithCancel(ctx)
+	return PipersContext{ctx, n}, cancel
 }
 
 func (ps *PiperSolver[R]) Context(ctx context.Context) *PiperSolver[R] {
@@ -44,17 +52,17 @@ func (ps *PiperSolver[R]) Context(ctx context.Context) *PiperSolver[R] {
 }
 
 func (ps *PiperSolver[R]) FirstError() error {
-	ctx, cancel := context.WithCancel(ps.getContext())
+	ctx, cancel := ps.createContextWithCancelAndLimit(1)
 	defer cancel()
-	ps.Pipers.Run(ctx, ps.concurrency, 1)
+	ps.Run(ctx)
 	return ps.Pipers.FirstError(ctx)
 }
 
 func (ps *PiperSolver[R]) FirstNErrors(n int) Errors {
-	ctx, cancel := context.WithCancel(ps.getContext())
+	ctx, cancel := ps.createContextWithCancelAndLimit(n)
 	defer cancel()
-	ps.Pipers.Run(ctx, ps.concurrency, n)
-	return ps.Pipers.FirstNErrors(ctx, n)
+	ps.Run(ctx)
+	return ps.Pipers.FirstNErrors(ctx)
 }
 
 func (ps *PiperSolver[R]) ErrorsAll() Errors {

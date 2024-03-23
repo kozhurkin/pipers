@@ -31,6 +31,7 @@ var tasks = launcher.Tasks{
 			{1, 5, 245, launcher.Result{1, 4, 9, 16, 25}, nil},
 			{2, 5, 125, launcher.Result{1, 4, 9, 16, 25}, nil},
 			{6, 5, 100, launcher.Result{1, 4, 9, 16, 25}, nil},
+			{0, 5, 100, launcher.Result{1, 4, 9, 16, 25}, nil},
 		},
 	},
 	{
@@ -49,6 +50,7 @@ var tasks = launcher.Tasks{
 			{1, 2, 90, launcher.Result{1, 0, 0, 0, 0}, context.DeadlineExceeded},
 			{2, 4, 90, launcher.Result{1, 0, 9, 0, 0}, context.DeadlineExceeded},
 			{6, 5, 90, launcher.Result{1, 0, 9, 16, 25}, context.DeadlineExceeded},
+			{0, 5, 90, launcher.Result{1, 0, 9, 16, 25}, context.DeadlineExceeded},
 		},
 	},
 	{
@@ -67,6 +69,7 @@ var tasks = launcher.Tasks{
 			{1, 2, 90, launcher.Result{1, 0, 0, 0, 0}, context.DeadlineExceeded},
 			{2, 4, 90, launcher.Result{1, 0, 9, 0, 0}, context.DeadlineExceeded},
 			{6, 5, 90, launcher.Result{1, 0, 9, 16, 25}, context.DeadlineExceeded},
+			{0, 5, 90, launcher.Result{1, 0, 9, 16, 25}, context.DeadlineExceeded},
 		},
 	},
 	{
@@ -85,6 +88,7 @@ var tasks = launcher.Tasks{
 			{1, 2, 150, launcher.Result{1, 0, 0, 0, 0}, throw},
 			{2, 4, 100, launcher.Result{1, 0, 9, 0, 0}, throw},
 			{6, 5, 100, launcher.Result{1, 0, 9, 16, 25}, throw},
+			{0, 5, 100, launcher.Result{1, 0, 9, 16, 25}, throw},
 		},
 	},
 	{
@@ -103,6 +107,7 @@ var tasks = launcher.Tasks{
 			{1, 2, 110, launcher.Result{1, 0, 0, 0, 0}, context.DeadlineExceeded},
 			{2, 4, 100, launcher.Result{1, 0, 9, 0, 0}, throw},
 			{6, 5, 100, launcher.Result{1, 0, 9, 16, 25}, throw},
+			{0, 5, 100, launcher.Result{1, 0, 9, 16, 25}, throw},
 		},
 	},
 	{
@@ -121,6 +126,7 @@ var tasks = launcher.Tasks{
 			{1, 2, 150, launcher.Result{1, 0, 0, 0, 0}, throw},
 			{2, 3, 80, launcher.Result{1, 0, 0, 0, 0}, throw2},
 			{6, 5, 30, launcher.Result{0, 0, 0, 0, 25}, throw2},
+			{0, 5, 30, launcher.Result{0, 0, 0, 0, 25}, throw2},
 		},
 	},
 	{
@@ -137,6 +143,7 @@ var tasks = launcher.Tasks{
 		TimeUnit:    TIME_UNIT,
 		Expectations: launcher.Expectations{
 			{6, 5, 30, launcher.Result{0, 0, 0, 0, 25}, throw},
+			{0, 5, 30, launcher.Result{0, 0, 0, 0, 25}, throw},
 		},
 	},
 }

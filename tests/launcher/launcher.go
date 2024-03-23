@@ -99,22 +99,34 @@ func (l Launcher) Run() *Launcher {
 			diff := expect.Duration - duration
 
 			<-waitchan
-			<-time.After(time.Duration(30*DURATION_FAILT) * task.TimeUnit)
+			<-time.After(time.Duration(3*DURATION_FAILT) * task.TimeUnit)
+
+			cntOk := atomic.LoadInt32(&cnt) == expect.Iterations
+			durationOk := math.Abs(float64(diff)) < DURATION_FAILT
+			resultOk := expect.Result.IsEqual(result)
+			errorOk := errors.Is(err, expect.Error)
 
 			l.T.Log(fmt.Sprintf(
 				"%v :  c=%v, %v \t %v %v \t %v %v      %v %v      %v (%v)",
 				task.Desc,
 				expect.Concurrency,
 				task.CancelAfter,
-				formatBool(atomic.LoadInt32(&cnt) == expect.Iterations),
+				formatBool(cntOk),
 				atomic.LoadInt32(&cnt),
-				formatBool(math.Abs(float64(diff)) < DURATION_FAILT),
+				formatBool(durationOk),
 				duration,
-				formatBool(expect.Result.IsEqual(result)),
+				formatBool(resultOk),
 				result,
-				formatBool(errors.Is(err, expect.Error)),
+				formatBool(errorOk),
 				err,
 			))
+
+			ok := cntOk && durationOk && resultOk && errorOk
+
+			if !ok {
+				l.T.Error("something is wrong!")
+			}
+
 		}
 		l.T.Log()
 	}
