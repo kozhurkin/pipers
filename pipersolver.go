@@ -62,7 +62,7 @@ func (ps *PiperSolver[R]) FirstNErrors(n int) Errors {
 
 func (ps *PiperSolver[R]) ErrorsAll() Errors {
 	ps.Run(0)
-	return ps.Pipers.ErrorsAll(ps.getContext())
+	return ps.Pipers.FirstNErrors(ps.getContext(), 0)
 }
 
 func (ps *PiperSolver[R]) Results() Results[R] {

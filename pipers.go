@@ -8,16 +8,12 @@ import (
 
 type Pipers[R any] []Piper[R]
 
-func (pp Pipers[R]) runAtOnce() Pipers[R] {
-	for _, p := range pp {
-		p.Run()
-	}
-	return pp
-}
-
 func (pp Pipers[R]) Run(ctx context.Context, n int, errlim int) Pipers[R] {
-	if n == 0 || n == len(pp) {
-		return pp.runAtOnce()
+	if n == 0 || n >= len(pp) {
+		for _, p := range pp {
+			p.Run()
+		}
+		return pp
 	}
 	go func() {
 		traffic := make(chan struct{}, n)
@@ -56,20 +52,27 @@ func (pp Pipers[R]) Run(ctx context.Context, n int, errlim int) Pipers[R] {
 	return pp
 }
 
-func (pp Pipers[R]) Results() Results[R] {
-	res := make([]R, len(pp))
-	for i, p := range pp {
-		select {
-		case res[i] = <-p.Out:
-		default:
-			continue
-		}
-	}
-	return res
-}
+func (pp Pipers[R]) ErrorsChan() chan error {
+	errchan := make(chan error, len(pp))
+	wg := sync.WaitGroup{}
 
-func (pp Pipers[R]) ErrorsAll(ctx context.Context) Errors {
-	return pp.FirstNErrors(ctx, 0)
+	wg.Add(len(pp))
+	for _, p := range pp {
+		p := p
+		go func() {
+			if err := <-p.Err; err != nil {
+				errchan <- err
+			}
+			wg.Done()
+		}()
+	}
+	go func() {
+		wg.Wait()
+		printDebug("************** close(errchan)")
+		close(errchan)
+	}()
+
+	return errchan
 }
 
 func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) Errors {
@@ -119,30 +122,14 @@ func (pp Pipers[R]) FirstError(ctx context.Context) error {
 	}
 }
 
-func (pp Pipers[R]) ErrorsChan() chan error {
-	errchan := make(chan error, len(pp))
-	wg := sync.WaitGroup{}
-
-	wg.Add(len(pp))
-	for _, p := range pp {
-		p := p
-		go func() {
-			if err := <-p.Err; err != nil {
-				errchan <- err
-			}
-			wg.Done()
-		}()
+func (pp Pipers[R]) Results() Results[R] {
+	res := make([]R, len(pp))
+	for i, p := range pp {
+		select {
+		case res[i] = <-p.Out:
+		default:
+			continue
+		}
 	}
-	go func() {
-		wg.Wait()
-		printDebug("************** close(errchan)")
-		close(errchan)
-	}()
-
-	return errchan
-}
-
-func (pp Pipers[R]) Resolve(ctx context.Context) ([]R, error) {
-	err := pp.FirstError(ctx)
-	return pp.Results(), err
+	return res
 }
