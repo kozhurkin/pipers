@@ -69,7 +69,7 @@ Usage
 * `pp.FirstNErrors()`
 * `pp.ErrorsAll()`
 
-#### pipers.FromFuncs()
+#### pipers.FromFuncs(funcs)
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -91,7 +91,7 @@ func main() {
 }
 ```
 
-#### pipers.FromArgs()
+#### pipers.FromArgs(args, handlers)
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -112,7 +112,8 @@ func main() {
 }
 ```
 
-#### pipers.Ref()
+#### pipers.Ref(&v, func)
+Helper for specifying values by pointer. it can be more convenient than type conversion.
 ``` golang
 import github.com/kozhurkin/async/pipers
 
@@ -139,10 +140,16 @@ func main() {
     // resp:    *http.Response, 200 OK
     // file:    []uint8, 213
     // number:  int, 777
+    
+    // without .Ref() you would have to do type conversion for slice elements
+    // resp := res[0].(*http.Response)
+    // file := res[1].([]byte)
+    // number := res[2].(int)
 }
 ```
 
-#### pipers.Context()
+#### pp.Context(ctx)
+Allows you to take a context as an argument and handle its termination. Сan be used, for example, to specify a timeout `context.WithTimeout`.
 
 ``` golang
 import github.com/kozhurkin/async/pipers
@@ -174,4 +181,11 @@ func main() {
     // func(5, 5) 4.00s
     // [3 0 2 0 1 0] context deadline exceeded 5.00s
 }
+```
+#### pp.Concurrency(n)
+
+Allows you to limit `n` the number of simultaneously executed goroutines.
+`1` - means that goroutines will be executed one by one. `0` - means that all the goroutines will run at once simultaneously in parallel.
+``` golang
+
 ```
