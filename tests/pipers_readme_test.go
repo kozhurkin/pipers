@@ -171,14 +171,14 @@ func TestReadmeErrorsAll(t *testing.T) {
 	data := []string{"one", "two", "three", "four", "five", "six", "seven"}
 
 	pp := pipers.FromArgs(data, func(i int, value string) (int, error) {
-		<-time.After(time.Duration(i+1) * time.Second)
+		<-time.After(time.Duration(i+1) * time.Millisecond)
 		if i%2 == 0 {
 			return -1, errors.New(value)
 		}
 		return 1, nil
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Millisecond)
 	defer cancel()
 
 	errs := pp.Context(ctx).ErrorsAll()

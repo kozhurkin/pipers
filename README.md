@@ -233,8 +233,8 @@ func main() {
 ```
 
 #### pp.ErrorsAll()
-Returns all errors that occurred.\
-Similar to `pp.FirstNErrors(0)`.
+Returns all errors that occurred. Similar to `pp.FirstNErrors(0)`.\
+Note that if the context is canceled, only the errors that were received at the moment of cancelation will be returned.
 ``` golang
 import github.com/kozhurkin/async/pipers
 
