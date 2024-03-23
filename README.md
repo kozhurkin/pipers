@@ -43,15 +43,14 @@ func main() {
 Usage
 -----
 
-✔ [`pipers.FromFuncs(funcs)`](#from-funcs)\
-✔ [`pipers.FromArgs(args, handler)`](#from-args)\
-✔ [`pipers.Ref(&v, func)`](#ref)\
-✔ [`pp.Concurrency(n)`](#concurrency)\
-✔ [`pp.Context(ctx)`](#context)\
-✔ [`pp.FirstNErrors(n)`](#first-n-errors)\
-✔ [`pp.ErrorsAll()`](#errors-all)
+✔ [`pipers.FromFuncs(funcs)`](#pipersfromfuncsfuncs)\
+✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handlers)\
+✔ [`pipers.Ref(&v, func)`](#pipersrefv-func)\
+✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
+✔ [`pp.Context(ctx)`](#ppcontextctx)\
+✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
+✔ [`pp.ErrorsAll()`](#pperrorsall)
 
-<a id="from-funcs"></a>
 #### pipers.FromFuncs(funcs)
 ``` golang
 import github.com/kozhurkin/async/pipers
@@ -74,7 +73,6 @@ func main() {
 }
 ```
 
-<a id="from-args"></a>
 #### pipers.FromArgs(args, handlers)
 ``` golang
 import github.com/kozhurkin/async/pipers
@@ -96,7 +94,6 @@ func main() {
 }
 ```
 
-<a id="ref"></a>
 #### pipers.Ref(&v, func)
 Helper for specifying values by pointer.
 It can be more convenient than type conversion.
@@ -133,7 +130,6 @@ func main() {
 }
 ```
 
-<a id="concurrency"></a>
 #### pp.Concurrency(n)
 Allows you to limit `n` the number of simultaneously executed goroutines.\
 `1` - means that goroutines will be executed one by one.\
@@ -175,7 +171,6 @@ func main() {
 }
 ```
 
-<a id="context"></a>
 #### pp.Context(ctx)
 Allows you to take a context as an argument and handle its termination.\
 Сan be used, for example, to specify a timeout `context.WithTimeout`.
@@ -211,7 +206,6 @@ func main() {
 }
 ```
 
-<a id="first-n-errors"></a>
 #### pp.FirstNErrors(n)
 Allows you to set `n` the number of errors you want to return.\
 `0` - will return any errors that have occurred.\
@@ -220,7 +214,6 @@ If there were no errors, the method returns `nil`.
 
 ```
 
-<a id="errors-all"></a>
 #### pp.ErrorsAll()
 Returns all errors that occurred.\
 Similar to `pp.FirstNErrors(0)`.
