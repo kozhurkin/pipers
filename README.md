@@ -22,38 +22,20 @@ Example
 import github.com/kozhurkin/async/pipers
 
 func main() {
+
     ts := time.Now()
-    urls := []string{
-        "https://nodejs.org",
-        "https://go.dev",
-        "https://vuejs.org",
-        "https://clickhouse.com",
-        "https://invalid.link",
-        "https://github.com",
-    }
+    args := []string{"parallelism", "helper", "powered", "by", "generics"}
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-
-    pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
-        res, err := http.Get(url)
-        if err != nil {
-            return -1, err
-        }
-        return res.StatusCode, err
+    pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
+        length := len(word)
+        sleep := time.Duration(length) * time.Second
+        <-time.After(sleep)
+        return length, nil
     })
-
-    pp.Context(ctx).Concurrency(2)
 
     results, err := pp.Resolve()
 
-    fmt.Println(time.Since(ts), results, err)
-    // func(1, https://go.dev) 243.416µs
-    // func(0, https://nodejs.org) 567.041µs
-    // func(2, https://vuejs.org) 362.966375ms
-    // func(3, https://clickhouse.com) 371.109291ms
-    // func(4, https://invalid.link) 660.3065ms
-    // 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+    fmt.Println(results, err, time.Since(ts)) // [11 6 7 2 8] <nil> 11.00s
 }
 ```
 
@@ -185,7 +167,40 @@ func main() {
 Allows you to limit `n` the number of simultaneously executed goroutines.
 `1` - means that goroutines will be executed one by one. `0` - means that all the goroutines will run at once simultaneously in parallel.
 ``` golang
+import github.com/kozhurkin/async/pipers
 
+func main() {
+    ts := time.Now()
+    urls := []string{
+        "https://nodejs.org",
+        "https://go.dev",
+        "https://vuejs.org",
+        "https://clickhouse.com",
+        "https://invalid.link",
+        "https://github.com",
+    }
+
+    pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
+        res, err := http.Get(url)
+        if err != nil {
+            return -1, err
+        }
+        return res.StatusCode, err
+    })
+
+    // vvvvvvvvvvv
+    pp.Concurrency(2)
+
+    results, err := pp.Resolve()
+
+    fmt.Println(time.Since(ts), results, err)
+    // func(1, https://go.dev) 243.416µs
+    // func(0, https://nodejs.org) 567.041µs
+    // func(2, https://vuejs.org) 362.966375ms
+    // func(3, https://clickhouse.com) 371.109291ms
+    // func(4, https://invalid.link) 660.3065ms
+    // 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+}
 ```
 
 #### pp.FirstNErrors(n)

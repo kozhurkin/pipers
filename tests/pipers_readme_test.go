@@ -10,40 +10,48 @@ import (
 	"time"
 )
 
-func TestReadmeExampleUrls(t *testing.T) {
+func TestReadmeExample(t *testing.T) {
 	ts := time.Now()
-	urls := []string{
-		"https://nodejs.org",
-		"https://go.dev",
-		"https://vuejs.org",
-		"https://clickhouse.com",
-		"https://invalid.link",
-		"https://github.com",
-	}
+	args := []string{"parallelism", "helper", "powered", "by", "generics"}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	pp := pipers.FromSlice(urls, func(i int, url string) (int, error) {
-		fmt.Printf("func(%v, %v) %v\n", i, url, time.Since(ts))
-		res, err := http.Get(url)
-		if err != nil {
-			return -1, err
-		}
-		return res.StatusCode, err
+	pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
+		length := len(word)
+		sleep := time.Duration(length) * time.Second
+		<-time.After(sleep)
+		return length, nil
 	})
-
-	pp.Context(ctx).Concurrency(2)
 
 	results, err := pp.Resolve()
 
-	fmt.Println(time.Since(ts), results, err)
-	// func(1, https://go.dev) 243.416µs
-	// func(0, https://nodejs.org) 567.041µs
-	// func(2, https://vuejs.org) 362.966375ms
-	// func(3, https://clickhouse.com) 371.109291ms
-	// func(4, https://invalid.link) 660.3065ms
-	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+	fmt.Println(results, err, time.Since(ts)) // [11 6 7 2 8] <nil> 11.00s
+}
+
+func TestReadmeFromFuncs(t *testing.T) {
+	ts := time.Now()
+	pp := pipers.FromFuncs(
+		func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
+		func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },
+		func() (string, error) { time.Sleep(2 * time.Second); return "Year", nil },
+		func() (string, error) { time.Sleep(4 * time.Second); return "!", nil },
+	)
+
+	results, err := pp.Resolve()
+
+	fmt.Println(results, err, time.Since(ts)) // [Happy New Year !] <nil> 4.00s
+}
+
+func TestReadmeFromArgs(t *testing.T) {
+	ts := time.Now()
+	args := []int{1, 2, 3, 4, 5}
+
+	pp := pipers.FromArgs(args, func(i int, a int) (int, error) {
+		time.Sleep(time.Duration(i) * time.Second)
+		return a * a, nil
+	})
+
+	results, err := pp.Resolve()
+
+	fmt.Println(results, err, time.Since(ts)) // [1 4 9 16 25] <nil> 4.00s
 }
 
 func TestReadmeRef(t *testing.T) {
@@ -82,7 +90,7 @@ func TestReadmeContext(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	pp := pipers.FromSlice(delays, func(i int, delay int) (float64, error) {
+	pp := pipers.FromArgs(delays, func(i int, delay int) (float64, error) {
 		fmt.Printf("func(%v, %v) %v\n", i, delay, time.Since(ts))
 		time.Sleep(time.Duration(delay) * time.Second)
 		return float64(delay), nil
@@ -104,30 +112,35 @@ func TestReadmeContext(t *testing.T) {
 	*/
 }
 
-func TestReadmeFromFuncs(t *testing.T) {
+func TestReadmeConcurrency(t *testing.T) {
 	ts := time.Now()
-	pp := pipers.FromFuncs(
-		func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
-		func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },
-		func() (string, error) { time.Sleep(2 * time.Second); return "Year", nil },
-		func() (string, error) { time.Sleep(4 * time.Second); return "!", nil },
-	)
+	urls := []string{
+		"https://nodejs.org",
+		"https://go.dev",
+		"https://vuejs.org",
+		"https://clickhouse.com",
+		"https://invalid.link",
+		"https://github.com",
+	}
 
-	results, err := pp.Resolve()
-
-	fmt.Println(results, err, time.Since(ts)) // [Happy New Year !] <nil> 4.00s
-}
-
-func TestReadmeFromSlice(t *testing.T) {
-	ts := time.Now()
-	args := []int{1, 2, 3, 4, 5}
-
-	pp := pipers.FromSlice(args, func(i int, a int) (int, error) {
-		time.Sleep(time.Duration(i) * time.Second)
-		return a * a, nil
+	pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
+		fmt.Printf("func(%v, %v) %v\n", i, url, time.Since(ts))
+		res, err := http.Get(url)
+		if err != nil {
+			return -1, err
+		}
+		return res.StatusCode, err
 	})
 
+	pp.Concurrency(2)
+
 	results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts)) // [1 4 9 16 25] <nil> 4.00s
+	fmt.Println(time.Since(ts), results, err)
+	// func(1, https://go.dev) 243.416µs
+	// func(0, https://nodejs.org) 567.041µs
+	// func(2, https://vuejs.org) 362.966375ms
+	// func(3, https://clickhouse.com) 371.109291ms
+	// func(4, https://invalid.link) 660.3065ms
+	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 }
