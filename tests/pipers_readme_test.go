@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -41,6 +42,25 @@ func TestReadmeFromFuncs(t *testing.T) {
 
 	fmt.Println(results, err, time.Since(ts))
 	// [Happy New Year !] <nil> 4.00ms
+}
+
+func TestReadmeFromFuncs2(t *testing.T) {
+	ts := time.Now()
+	pp := pipers.FromFuncs(
+		func() (interface{}, error) { time.Sleep(2 * time.Second); return "Happy", nil },
+		func() (interface{}, error) { time.Sleep(0 * time.Second); return []byte("New"), nil },
+		func() (interface{}, error) { time.Sleep(2 * time.Second); return bytes.NewBufferString("Year"), nil },
+		func() (interface{}, error) { time.Sleep(4 * time.Second); return byte('!'), nil },
+	)
+
+	res, err := pp.Resolve()
+
+	r0, r1, r2, r3 := res[0].(string), res[1].([]byte), res[2].(*bytes.Buffer), res[3].(byte)
+
+	fmt.Println(res, err, time.Since(ts))
+	fmt.Println(r0, string(r1), r2.String(), string(r3))
+	// [Happy [78 101 119] Year 33] <nil> 4.00s
+	// Happy New Year !
 }
 
 func TestReadmeFromArgs(t *testing.T) {
