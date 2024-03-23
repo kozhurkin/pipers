@@ -43,26 +43,22 @@ func (ps *PiperSolver[R]) Context(ctx context.Context) *PiperSolver[R] {
 	return ps
 }
 
-func (ps *PiperSolver[R]) Run(errlim int) *PiperSolver[R] {
-	ps.once.Do(func() {
-		ps.Pipers.Run(ps.getContext(), ps.concurrency, errlim)
-	})
-	return ps
-}
-
 func (ps *PiperSolver[R]) FirstError() error {
-	ps.Run(1)
-	return ps.Pipers.FirstError(ps.getContext())
+	ctx, cancel := context.WithCancel(ps.getContext())
+	defer cancel()
+	ps.Pipers.Run(ctx, ps.concurrency, 1)
+	return ps.Pipers.FirstError(ctx)
 }
 
 func (ps *PiperSolver[R]) FirstNErrors(n int) Errors {
-	ps.Run(n)
-	return ps.Pipers.FirstNErrors(ps.getContext(), n)
+	ctx, cancel := context.WithCancel(ps.getContext())
+	defer cancel()
+	ps.Pipers.Run(ctx, ps.concurrency, n)
+	return ps.Pipers.FirstNErrors(ctx, n)
 }
 
 func (ps *PiperSolver[R]) ErrorsAll() Errors {
-	ps.Run(0)
-	return ps.Pipers.FirstNErrors(ps.getContext(), 0)
+	return ps.FirstNErrors(0)
 }
 
 func (ps *PiperSolver[R]) Results() Results[R] {

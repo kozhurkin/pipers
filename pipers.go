@@ -8,15 +8,15 @@ import (
 
 type Pipers[R any] []Piper[R]
 
-func (pp Pipers[R]) Run(ctx context.Context, n int, errlim int) Pipers[R] {
-	if n == 0 || n >= len(pp) {
+func (pp Pipers[R]) Run(ctx context.Context, concurrency int, errlim int) Pipers[R] {
+	if concurrency == 0 || concurrency >= len(pp) {
 		for _, p := range pp {
 			p.Run()
 		}
 		return pp
 	}
 	go func() {
-		traffic := make(chan struct{}, n)
+		traffic := make(chan struct{}, concurrency)
 		catch := make(chan struct{})
 		var once sync.Once
 		var cnt int32
@@ -76,19 +76,8 @@ func (pp Pipers[R]) ErrorsChan() chan error {
 }
 
 func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) Errors {
-	errs := make(Errors, 0, n)
 	errchan := pp.ErrorsChan()
-	done := make(chan struct{})
-	var doneclosed int32
-	go func() {
-		if sig := <-ctx.Done(); atomic.LoadInt32(&doneclosed) == 0 {
-			done <- sig
-		}
-	}()
-	defer func() {
-		atomic.AddInt32(&doneclosed, 1)
-		close(done)
-	}()
+	errs := make(Errors, 0, n)
 	for {
 		select {
 		case err, ok := <-errchan:
@@ -99,7 +88,7 @@ func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) Errors {
 				return errs
 			}
 			errs = append(errs, err)
-		case <-done:
+		case <-ctx.Done():
 			errs = append(errs, ctx.Err())
 			return errs
 		}
