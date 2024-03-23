@@ -23,7 +23,8 @@ func TestReadmeExample(t *testing.T) {
 
 	results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts)) // [6 2 11 6 7 2 8] <nil> 11.00s
+	fmt.Println(results, err, time.Since(ts))
+	// [6 2 11 6 7 2 8] <nil> 11.00s
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
@@ -37,7 +38,8 @@ func TestReadmeFromFuncs(t *testing.T) {
 
 	results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts)) // [Happy New Year !] <nil> 4.00s
+	fmt.Println(results, err, time.Since(ts))
+	// [Happy New Year !] <nil> 4.00s
 }
 
 func TestReadmeFromArgs(t *testing.T) {
@@ -51,7 +53,8 @@ func TestReadmeFromArgs(t *testing.T) {
 
 	results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts)) // [1 4 9 16 25] <nil> 4.00s
+	fmt.Println(results, err, time.Since(ts))
+	// [1 4 9 16 25] <nil> 4.00s
 }
 
 func TestReadmeRef(t *testing.T) {

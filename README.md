@@ -35,7 +35,8 @@ func main() {
 
     results, err := pp.Resolve()
 
-    fmt.Println(results, err, time.Since(ts)) // [6 2 11 6 7 2 8] <nil> 11.00s
+    fmt.Println(results, err, time.Since(ts))
+    // [6 2 11 6 7 2 8] <nil> 11.00s
 }
 ```
 
