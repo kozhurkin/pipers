@@ -258,11 +258,6 @@ func main() {
     results := pp.Results()
     
     fmt.Println(results, errs, time.Since(ts))
-    fmt.Println(errs.Join())
     // [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.001158667s
-    // one
-    // three
-    // five
-    // context deadline exceeded
 }
 ```
