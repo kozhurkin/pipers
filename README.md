@@ -56,6 +56,8 @@ import github.com/kozhurkin/async/pipers
 
 func main() {
     ts := time.Now()
+
+    //...........vvvvvvvvv
     pp := pipers.FromFuncs(
         func() (interface{}, error) { time.Sleep(2 * time.Second); return "Happy", nil },
         func() (interface{}, error) { time.Sleep(0 * time.Second); return []byte("New"), nil },
@@ -111,6 +113,7 @@ func main() {
     var c int
 
     pp := pipers.FromFuncs(
+    //.........vvv
         pipers.Ref(&a, func() (*http.Response, error) { return http.Get("https://github.com") }),
         pipers.Ref(&b, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
         pipers.Ref(&c, func() (int, error) { return 777, nil }),
@@ -228,7 +231,7 @@ func main() {
         return 1, nil
     }).Concurrency(1)
 
-    // ........vvvvvvvvvvvv
+    //.........vvvvvvvvvvvv
     errs := pp.FirstNErrors(2)
     results := pp.Results()
 
@@ -246,7 +249,7 @@ import github.com/kozhurkin/async/pipers
 func main() {
     ts := time.Now()
     data := []string{"one", "two", "three", "four", "five", "six", "seven"}
-    
+
     pp := pipers.FromArgs(data, func(i int, value string) (int, error) {
         <-time.After(time.Duration(i+1) * time.Second)
         if i%2 == 0 {
@@ -254,13 +257,14 @@ func main() {
         }
         return 1, nil
     })
-    
+
     ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
     defer cancel()
-    
+
+    //......................vvvvvvvvv
     errs := pp.Context(ctx).ErrorsAll()
     results := pp.Results()
-    
+
     fmt.Println(results, errs, time.Since(ts))
     // [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.001158667s
 }

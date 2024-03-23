@@ -46,6 +46,7 @@ func TestReadmeFromFuncs(t *testing.T) {
 
 func TestReadmeFromFuncs2(t *testing.T) {
 	ts := time.Now()
+
 	pp := pipers.FromFuncs(
 		func() (interface{}, error) { time.Sleep(2 * time.Millisecond); return "Happy", nil },
 		func() (interface{}, error) { time.Sleep(0 * time.Millisecond); return []byte("New"), nil },
