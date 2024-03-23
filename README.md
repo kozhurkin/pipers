@@ -46,8 +46,8 @@ Usage
 ✔ `pipers.FromFuncs(funcs)`\
 ✔ `pipers.FromArgs(args, handler)`\
 ✔ `pipers.Ref(&v, func)`\
-✔ `pp.Context(ctx)`\
 ✔ `pp.Concurrency(n)`\
+✔ `pp.Context(ctx)`\
 ✔ `pp.FirstNErrors(n)`\
 ✔ `pp.ErrorsAll()`
 
@@ -130,43 +130,7 @@ func main() {
 }
 ```
 
-#### pp.Context(ctx)
-Allows you to take a context as an argument and handle its termination.\
-Сan be used, for example, to specify a timeout `context.WithTimeout`.
-
-``` golang
-import github.com/kozhurkin/async/pipers
-
-func main() {
-    ts := time.Now()
-    delays := []int{3, 6, 2, 4, 1, 5}
-
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-
-    pp := pipers.FromArgs(delays, func(i int, delay int) (float64, error) {
-        fmt.Printf("func(%v, %v) %v\n", i, delay, time.Since(ts))
-        time.Sleep(time.Duration(delay) * time.Second)
-        return float64(delay), nil
-    })
-    // vvvvvvv
-    pp.Context(ctx).Concurrency(3)
-
-    results, err := pp.Resolve()
-
-    fmt.Println(results, err, time.Since(ts))
-
-    // func(0, 3) 0.00s
-    // func(1, 6) 0.00s
-    // func(2, 2) 0.00s
-    // func(3, 4) 2.00s
-    // func(4, 1) 3.00s
-    // func(5, 5) 4.00s
-    // [3 0 2 0 1 0] context deadline exceeded 5.00s
-}
-```
 #### pp.Concurrency(n)
-
 Allows you to limit `n` the number of simultaneously executed goroutines.\
 `1` - means that goroutines will be executed one by one.\
 `0` - means that all the goroutines will run at once simultaneously in parallel.
@@ -207,8 +171,42 @@ func main() {
 }
 ```
 
-#### pp.FirstNErrors(n)
+#### pp.Context(ctx)
+Allows you to take a context as an argument and handle its termination.\
+Сan be used, for example, to specify a timeout `context.WithTimeout`.
+``` golang
+import github.com/kozhurkin/async/pipers
 
+func main() {
+    ts := time.Now()
+    delays := []int{3, 6, 2, 4, 1, 5}
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    pp := pipers.FromArgs(delays, func(i int, delay int) (float64, error) {
+        fmt.Printf("func(%v, %v) %v\n", i, delay, time.Since(ts))
+        time.Sleep(time.Duration(delay) * time.Second)
+        return float64(delay), nil
+    })
+    // vvvvvvv
+    pp.Context(ctx).Concurrency(3)
+
+    results, err := pp.Resolve()
+
+    fmt.Println(results, err, time.Since(ts))
+
+    // func(0, 3) 0.00s
+    // func(1, 6) 0.00s
+    // func(2, 2) 0.00s
+    // func(3, 4) 2.00s
+    // func(4, 1) 3.00s
+    // func(5, 5) 4.00s
+    // [3 0 2 0 1 0] context deadline exceeded 5.00s
+}
+```
+
+#### pp.FirstNErrors(n)
 Allows you to set `n` the number of errors you want to return.\
 `0` - will return any errors that have occurred.\
 If there were no errors, the method returns `nil`.

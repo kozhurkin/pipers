@@ -74,7 +74,6 @@ func TestReadmeRef(t *testing.T) {
 	fmt.Printf("a:        %T, %v \n", a, a.Status)
 	fmt.Printf("b:        %T, %v \n", b, len(b))
 	fmt.Printf("c:        %T, %v \n", c, c)
-
 	// results: []interface {}, 3
 	// a:       *http.Response, 200 OK
 	// b:       []uint8, 213
