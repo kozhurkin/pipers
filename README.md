@@ -1,5 +1,7 @@
 # pipers
 
+![pipers status](https://github.com/kozhurkin/pipers/actions/workflows/test.yml/badge.svg)
+
 parallelism helper powered by generics
 
 #### Why is pipers better than sync.WaitGroup or errgroup.Group?
