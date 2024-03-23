@@ -48,7 +48,12 @@ func main() {
     results, err := pp.Resolve()
 
     fmt.Println(time.Since(ts), results, err)
-    // 558.88ms [200 200 200 0 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+    // func(1, https://go.dev) 243.416µs
+    // func(0, https://nodejs.org) 567.041µs
+    // func(2, https://vuejs.org) 362.966375ms
+    // func(3, https://clickhouse.com) 371.109291ms
+    // func(4, https://invalid.link) 660.3065ms
+    // 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 }
 ```
 
@@ -69,19 +74,20 @@ Usage
 import github.com/kozhurkin/async/pipers
 
 func main() {
-	ts := time.Now()
+    ts := time.Now()
 
-	pp := pipers.FromFuncs(
-		func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
-		func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },
-		func() (string, error) { time.Sleep(2 * time.Second); return "Year", nil },
-		func() (string, error) { time.Sleep(4 * time.Second); return "!", nil },
-	)
+    //...........vvvvvvvvv
+    pp := pipers.FromFuncs(
+        func() (string, error) { time.Sleep(2 * time.Second); return "Happy", nil },
+        func() (string, error) { time.Sleep(0 * time.Second); return "New", nil },
+        func() (string, error) { time.Sleep(2 * time.Second); return "Year", nil },
+        func() (string, error) { time.Sleep(4 * time.Second); return "!", nil },
+    )
 
-	results, err := pp.Resolve()
+    results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts))
-	// [Happy New Year !] <nil> 4.00s
+    fmt.Println(results, err, time.Since(ts))
+    // [Happy New Year !] <nil> 4.00s
 }
 ```
 
@@ -90,18 +96,19 @@ func main() {
 import github.com/kozhurkin/async/pipers
 
 func main() {
-	ts := time.Now()
-	args := []int{1, 2, 3, 4, 5}
+    ts := time.Now()
+    args := []int{1, 2, 3, 4, 5}
 
-	pp := pipers.FromArgs(args, func(i int, a int) (int, error) {
-		<-time.After(time.Duration(i) * time.Second)
-		return a * a, nil
-	})
+    //...........vvvvvvvv
+    pp := pipers.FromArgs(args, func(i int, a int) (int, error) {
+        <-time.After(time.Duration(i) * time.Second)
+        return a * a, nil
+    })
 
-	results, err := pp.Resolve()
+    results, err := pp.Resolve()
 
-	fmt.Println(results, err, time.Since(ts))
-	// [1 4 9 16 25] <nil> 4.00s
+    fmt.Println(results, err, time.Since(ts))
+    // [1 4 9 16 25] <nil> 4.00s
 }
 ```
 
@@ -113,15 +120,16 @@ func main() {
     var resp *http.Response
     var file []byte
     var number int
-    
+
     pp := pipers.FromFuncs(
+    //.........vvv
         pipers.Ref(&resp, func() (*http.Response, error) { return http.Get("https://github.com") }),
         pipers.Ref(&file, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
         pipers.Ref(&number, func() (int, error) { return 777, nil }),
     )
-    
+
     results, _ := pp.Run().Resolve()
-    
+
     fmt.Printf("results:  %T, %v \n", results, len(results))
     fmt.Printf("resp:     %T, %v \n", resp, resp.Status)
     fmt.Printf("file:     %T, %v \n", file, len(file))
@@ -151,7 +159,7 @@ func main() {
         time.Sleep(time.Duration(delay) * time.Second)
         return float64(delay), nil
     })
-
+    // vvvvvvv
     pp.Context(ctx).Concurrency(3)
 
     results, err := pp.Resolve()
