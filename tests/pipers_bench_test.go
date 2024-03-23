@@ -3,7 +3,7 @@ package tests
 import (
 	"context"
 	"errors"
-	"github.com/kozhurkin/async"
+	"github.com/kozhurkin/pipers"
 	"math/rand"
 	"runtime"
 	"sync/atomic"
@@ -29,7 +29,7 @@ var datas = func() [][]int {
 
 var seed = time.Now().UnixNano()
 
-func launcher(b *testing.B, asyncFunc func(context.Context, []int, func(int, int) (int, error), int) ([]int, error)) {
+func bench(b *testing.B, asyncFunc func(context.Context, []int, func(int, int) (int, error), int) ([]int, error)) {
 	ctx := context.Background()
 	rand.Seed(seed)
 	var errs, iters int32
@@ -55,7 +55,7 @@ func launcher(b *testing.B, asyncFunc func(context.Context, []int, func(int, int
 }
 
 func BenchmarkAsyncPipers(b *testing.B) {
-	launcher(b, func(ctx context.Context, args []int, f func(int, int) (int, error), concurrency int) ([]int, error) {
+	bench(b, func(ctx context.Context, args []int, f func(int, int) (int, error), concurrency int) ([]int, error) {
 		return pipers.FromArgs(args, f).Context(ctx).Concurrency(concurrency).Resolve()
 	})
 }

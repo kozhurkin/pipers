@@ -19,23 +19,23 @@ Example
 -----
 
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
-    args := []string{"pipers", "is", "parallelism", "helper", "powered", "by", "generics"}
+    args := []string{"pipers", "is", "a", "parallelism", "helper", "powered", "by", "generics"}
 
     pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
         length := len(word)
-        sleep := time.Duration(length) * time.Second
-        <-time.After(sleep)
+        sleeptime := time.Duration(length) * time.Second
+        <-time.After(sleeptime)
         return length, nil
     })
 
     results, err := pp.Resolve()
 
     fmt.Println(results, err, time.Since(ts))
-    // [6 2 11 6 7 2 8] <nil> 11.00s
+    // [6 2 1 11 6 7 2 8] <nil> 11.00s
 }
 ```
 
@@ -52,7 +52,7 @@ Usage
 
 #### pipers.FromFuncs(funcs)
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
@@ -82,7 +82,7 @@ func main() {
 
 #### pipers.FromArgs(args, handlers)
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
@@ -105,7 +105,7 @@ func main() {
 Helper for specifying values by pointer.
 It can be more convenient than type conversion.
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     var a *http.Response
@@ -143,7 +143,7 @@ Allows you to limit `n` the number of simultaneously executed goroutines.\
 `1` - means that goroutines will be executed one by one.\
 `0` - means that all the goroutines will run at once simultaneously in parallel.
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
@@ -183,7 +183,7 @@ func main() {
 Allows you to take a context as an argument and handle its termination.\
 Сan be used, for example, to specify a timeout `context.WithTimeout`.
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
@@ -219,7 +219,7 @@ Allows you to set `n` the number of errors you want to return.\
 `0` - will return any errors that have occurred.\
 If there were no errors, the method returns `nil`.
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     data := []string{"one", "two", "three", "four", "five", "six", "seven"}
@@ -244,7 +244,7 @@ func main() {
 Returns all errors that occurred. Similar to `pp.FirstNErrors(0)`.\
 Note that if the context is canceled, only the errors that were received at the moment of cancelation will be returned.
 ``` golang
-import github.com/kozhurkin/async/pipers
+import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()

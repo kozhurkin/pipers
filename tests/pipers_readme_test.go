@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/kozhurkin/async"
+	"github.com/kozhurkin/pipers"
 	"net/http"
 	"os"
 	"testing"
@@ -14,12 +14,12 @@ import (
 
 func TestReadmeExample(t *testing.T) {
 	ts := time.Now()
-	args := []string{"pipers", "is", "parallelism", "helper", "powered", "by", "generics"}
+	args := []string{"pipers", "is", "a", "parallelism", "helper", "powered", "by", "generics"}
 
 	pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
 		length := len(word)
-		sleep := time.Duration(length) * time.Millisecond
-		<-time.After(sleep)
+		sleeptime := time.Duration(length) * time.Millisecond
+		<-time.After(sleeptime)
 		return length, nil
 	})
 

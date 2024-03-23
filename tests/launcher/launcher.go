@@ -1,4 +1,4 @@
-package tests
+package launcher
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-type ProcessInfo [5]*struct {
+type Flow [5]*struct {
 	Delay int
-	Err   error
+	Error error
 }
 
-func (pi ProcessInfo) Duration(c int) int {
+func (pi Flow) MaxDuration(c int) int {
 	m := make(map[int]int)
 	if c == 0 || c > len(pi) {
 		c = len(pi)
@@ -43,7 +43,7 @@ type Expectations []*struct {
 type Tasks []*struct {
 	Desc string
 	Args [5]int
-	ProcessInfo
+	Flow
 	CancelAfter int
 	TimeUnit    time.Duration
 	Expectations
@@ -72,7 +72,6 @@ func (l Launcher) Pick(ti int, ei int) *Launcher {
 func (l Launcher) Run() *Launcher {
 	for _, task := range l.Tasks {
 		task := task
-		//for _, c := range []int{task.Concurrency} {
 		for _, expect := range task.Expectations {
 			ctx := context.Background()
 			if task.CancelAfter != 0 {
@@ -80,17 +79,18 @@ func (l Launcher) Run() *Launcher {
 				ctx, cancel = context.WithTimeout(ctx, time.Duration(task.CancelAfter)*task.TimeUnit)
 				defer cancel()
 			}
-			wait := time.After(time.Duration(task.ProcessInfo.Duration(expect.Concurrency)) * task.TimeUnit)
 			var cnt int32
+			waitchan := time.After(time.Duration(task.Flow.MaxDuration(expect.Concurrency)) * task.TimeUnit)
 			ts := time.Now()
+
 			result, err := l.Handler(ctx, task.Args[:5], func(i int, arg int) (int, error) {
 				defer func() {
 					atomic.AddInt32(&cnt, 1)
 				}()
-				pi := task.ProcessInfo[i]
+				pi := task.Flow[i]
 				<-time.After(time.Duration(pi.Delay) * task.TimeUnit)
-				if pi.Err != nil {
-					return 0, pi.Err
+				if pi.Error != nil {
+					return 0, pi.Error
 				}
 				return arg * arg, nil
 			}, expect.Concurrency)
@@ -98,7 +98,7 @@ func (l Launcher) Run() *Launcher {
 			duration := int(time.Since(ts) / task.TimeUnit)
 			diff := expect.Duration - duration
 
-			<-wait
+			<-waitchan
 			<-time.After(time.Duration(30*DURATION_FAILT) * task.TimeUnit)
 
 			l.T.Log(fmt.Sprintf(
