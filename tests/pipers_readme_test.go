@@ -10,27 +10,6 @@ import (
 	"time"
 )
 
-func TestReadmeExample(t *testing.T) {
-	videos := []string{"XqZsoesa55w", "kJQP7kiw5Fk", "RgKAFK5djSk"}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	pp := pipers.FromSlice(videos, func(i int, vid string) (int, error) {
-		views, err := youtube.GetViews(vid)
-		if err != nil {
-			return 0, err
-		}
-		return views, nil
-	})
-
-	pp.Context(ctx).Concurrency(2)
-
-	results, err := pp.Resolve()
-
-	fmt.Println(results, err) // [14.2e9 8.4e9 6.2e9] <nil>
-}
-
 func TestReadmeExampleUrls(t *testing.T) {
 	ts := time.Now()
 	urls := []string{
@@ -46,6 +25,7 @@ func TestReadmeExampleUrls(t *testing.T) {
 	defer cancel()
 
 	pp := pipers.FromSlice(urls, func(i int, url string) (int, error) {
+		fmt.Printf("func(%v, %v) %v\n", i, url, time.Since(ts))
 		res, err := http.Get(url)
 		if err != nil {
 			return -1, err
@@ -58,10 +38,15 @@ func TestReadmeExampleUrls(t *testing.T) {
 	results, err := pp.Resolve()
 
 	fmt.Println(time.Since(ts), results, err)
-	// 558.88ms [200 200 200 0 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+	// func(1, https://go.dev) 243.416µs
+	// func(0, https://nodejs.org) 567.041µs
+	// func(2, https://vuejs.org) 362.966375ms
+	// func(3, https://clickhouse.com) 371.109291ms
+	// func(4, https://invalid.link) 660.3065ms
+	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 }
 
-func TestReadmeExampleRef(t *testing.T) {
+func TestReadmeRef(t *testing.T) {
 	var resp *http.Response
 	var file []byte
 	var number int
@@ -80,7 +65,7 @@ func TestReadmeExampleRef(t *testing.T) {
 	fmt.Printf("number:   %T, %v \n", number, number)        // number:  int, 777
 }
 
-func TestReadmeExampleDelays(t *testing.T) {
+func TestReadmeContext(t *testing.T) {
 	ts := time.Now()
 	delays := []int{3, 6, 2, 4, 1, 5, 1}
 
