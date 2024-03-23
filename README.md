@@ -211,12 +211,57 @@ Allows you to set `n` the number of errors you want to return.\
 `0` - will return any errors that have occurred.\
 If there were no errors, the method returns `nil`.
 ``` golang
+import github.com/kozhurkin/async/pipers
 
+func main() {
+    data := []string{"one", "two", "three", "four", "five", "six", "seven"}
+
+    pp := pipers.FromArgs(data, func(i int, value string) (int, error) {
+        if i%2 == 0 {
+            return -1, errors.New(value)
+        }
+        return 1, nil
+    }).Concurrency(1)
+
+    // ........vvvvvvvvvvvv
+    errs := pp.FirstNErrors(2)
+    results := pp.Results()
+
+    fmt.Println(results, errs)
+    // [-1 1 -1 0 0 0 0] [one three]
+}
 ```
 
 #### pp.ErrorsAll()
 Returns all errors that occurred.\
 Similar to `pp.FirstNErrors(0)`.
 ``` golang
+import github.com/kozhurkin/async/pipers
 
+func main() {
+    ts := time.Now()
+    data := []string{"one", "two", "three", "four", "five", "six", "seven"}
+    
+    pp := pipers.FromArgs(data, func(i int, value string) (int, error) {
+        <-time.After(time.Duration(i+1) * time.Second)
+        if i%2 == 0 {
+            return -1, errors.New(value)
+        }
+        return 1, nil
+    })
+    
+    ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+    defer cancel()
+    
+    errs := pp.Context(ctx).ErrorsAll()
+    results := pp.Results()
+    
+    fmt.Println(results, errs, time.Since(ts))
+    fmt.Println(errs.Join())
+    // [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.001158667s
+    // one
+    // three
+    // five
+    // context deadline exceeded
+}
 ```

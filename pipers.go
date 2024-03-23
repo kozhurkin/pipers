@@ -15,7 +15,7 @@ func (pp Pipers[R]) runAtOnce() Pipers[R] {
 	return pp
 }
 
-func (pp Pipers[R]) Run(ctx context.Context, n int) Pipers[R] {
+func (pp Pipers[R]) Run(ctx context.Context, n int, errlim int) Pipers[R] {
 	if n == 0 || n == len(pp) {
 		return pp.runAtOnce()
 	}
@@ -23,6 +23,7 @@ func (pp Pipers[R]) Run(ctx context.Context, n int) Pipers[R] {
 		traffic := make(chan struct{}, n)
 		catch := make(chan struct{})
 		var once sync.Once
+		var cnt int32
 		defer func() {
 			printDebug("close(traffic)")
 			close(traffic)
@@ -41,7 +42,7 @@ func (pp Pipers[R]) Run(ctx context.Context, n int) Pipers[R] {
 			case traffic <- struct{}{}:
 				go func() {
 					err := <-p.run()
-					if err != nil {
+					if err != nil && atomic.AddInt32(&cnt, 1) >= int32(errlim) {
 						once.Do(func() {
 							close(catch)
 						})
@@ -67,12 +68,12 @@ func (pp Pipers[R]) Results() Results[R] {
 	return res
 }
 
-func (pp Pipers[R]) ErrorsAll(ctx context.Context) []error {
+func (pp Pipers[R]) ErrorsAll(ctx context.Context) Errors {
 	return pp.FirstNErrors(ctx, 0)
 }
 
-func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) []error {
-	errs := make([]error, 0, n)
+func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) Errors {
+	errs := make(Errors, 0, n)
 	errchan := pp.ErrorsChan()
 	done := make(chan struct{})
 	var doneclosed int32
@@ -97,6 +98,7 @@ func (pp Pipers[R]) FirstNErrors(ctx context.Context, n int) []error {
 			errs = append(errs, err)
 		case <-done:
 			errs = append(errs, ctx.Err())
+			return errs
 		}
 		if n > 0 && len(errs) == n {
 			return errs
