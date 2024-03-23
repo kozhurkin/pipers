@@ -212,5 +212,5 @@ func TestReadmeErrorsAll(t *testing.T) {
 	results := pp.Results()
 
 	fmt.Println(results, errs, time.Since(ts))
-	// [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.001158667s
+	// [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
 }
