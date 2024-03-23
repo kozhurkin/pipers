@@ -47,22 +47,32 @@ func TestReadmeExampleUrls(t *testing.T) {
 }
 
 func TestReadmeRef(t *testing.T) {
-	var resp *http.Response
-	var file []byte
-	var number int
+	var a *http.Response
+	var b []byte
+	var c int
 
 	pp := pipers.FromFuncs(
-		pipers.Ref(&resp, func() (*http.Response, error) { return http.Get("https://github.com") }),
-		pipers.Ref(&file, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
-		pipers.Ref(&number, func() (int, error) { return 777, nil }),
+		pipers.Ref(&a, func() (*http.Response, error) { return http.Get("https://github.com") }),
+		pipers.Ref(&b, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
+		pipers.Ref(&c, func() (int, error) { return 777, nil }),
 	)
 
 	results, _ := pp.Run().Resolve()
 
-	fmt.Printf("results:  %T, %v \n", results, len(results)) // results: []interface {}, 3
-	fmt.Printf("resp:     %T, %v \n", resp, resp.Status)     // resp:    *http.Response, 200 OK
-	fmt.Printf("file:     %T, %v \n", file, len(file))       // file:    []uint8, 213
-	fmt.Printf("number:   %T, %v \n", number, number)        // number:  int, 777
+	fmt.Printf("results:  %T, %v \n", results, len(results))
+	fmt.Printf("a:        %T, %v \n", a, a.Status)
+	fmt.Printf("b:        %T, %v \n", b, len(b))
+	fmt.Printf("c:        %T, %v \n", c, c)
+
+	// results: []interface {}, 3
+	// a:       *http.Response, 200 OK
+	// b:       []uint8, 213
+	// c:       int, 777
+
+	// without .Ref() you would have to do type conversion for slice elements
+	// a := results[0].(*http.Response)
+	// b := results[1].([]byte)
+	// c := results[2].(int)
 }
 
 func TestReadmeContext(t *testing.T) {
