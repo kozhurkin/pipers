@@ -35,7 +35,7 @@ func main() {
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
 
-    pp := pipers.FromSlice(urls, func(i int, url string) (int, error) {
+    pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
         res, err := http.Get(url)
         if err != nil {
             return -1, err
@@ -60,14 +60,13 @@ func main() {
 Usage
 -----
 
-* `pipers.FromFuncs(funcs)`
-* `pipers.FromArgs(args, handler)`
-* `pipers.Ref(&v, func)`
-
-* `pp.Context(ctx)`
-* `pp.Concurrency(n)`
-* `pp.FirstNErrors()`
-* `pp.ErrorsAll()`
+✔ `pipers.FromFuncs(funcs)`\
+✔ `pipers.FromArgs(args, handler)`\
+✔ `pipers.Ref(&v, func)`\
+✔ `pp.Context(ctx)`\
+✔ `pp.Concurrency(n)`\
+✔ `pp.FirstNErrors()`\
+✔ `pp.ErrorsAll()`
 
 #### pipers.FromFuncs(funcs)
 ``` golang
@@ -113,7 +112,7 @@ func main() {
 ```
 
 #### pipers.Ref(&v, func)
-Helper for specifying values by pointer. it can be more convenient than type conversion.
+Helper for specifying values by pointer. It can be more convenient than type conversion.
 ``` golang
 import github.com/kozhurkin/async/pipers
 
