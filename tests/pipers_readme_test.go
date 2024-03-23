@@ -47,15 +47,21 @@ func TestReadmeFromFuncs(t *testing.T) {
 func TestReadmeFromFuncs2(t *testing.T) {
 	ts := time.Now()
 	pp := pipers.FromFuncs(
-		func() (interface{}, error) { time.Sleep(2 * time.Second); return "Happy", nil },
-		func() (interface{}, error) { time.Sleep(0 * time.Second); return []byte("New"), nil },
-		func() (interface{}, error) { time.Sleep(2 * time.Second); return bytes.NewBufferString("Year"), nil },
-		func() (interface{}, error) { time.Sleep(4 * time.Second); return byte('!'), nil },
+		func() (interface{}, error) { time.Sleep(2 * time.Millisecond); return "Happy", nil },
+		func() (interface{}, error) { time.Sleep(0 * time.Millisecond); return []byte("New"), nil },
+		func() (interface{}, error) {
+			time.Sleep(2 * time.Millisecond)
+			return bytes.NewBufferString("Year"), nil
+		},
+		func() (interface{}, error) { time.Sleep(4 * time.Millisecond); return byte('!'), nil },
 	)
 
 	res, err := pp.Resolve()
 
-	r0, r1, r2, r3 := res[0].(string), res[1].([]byte), res[2].(*bytes.Buffer), res[3].(byte)
+	r0 := res[0].(string)
+	r1 := res[1].([]byte)
+	r2 := res[2].(*bytes.Buffer)
+	r3 := res[3].(byte)
 
 	fmt.Println(res, err, time.Since(ts))
 	fmt.Println(r0, string(r1), r2.String(), string(r3))

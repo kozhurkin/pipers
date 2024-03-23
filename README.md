@@ -65,10 +65,14 @@ func main() {
 
     res, err := pp.Resolve()
 
-    r0, r1, r2, r3 := res[0].(string), res[1].([]byte), res[2].(*bytes.Buffer), res[3].(byte)
+    r0 := res[0].(string)
+    r1 := res[1].([]byte)
+    r2 := res[2].(*bytes.Buffer)
+    r3 := res[3].(byte)
 
     fmt.Println(res, err, time.Since(ts))
     fmt.Println(r0, string(r1), r2.String(), string(r3))
+
     // [Happy [78 101 119] Year 33] <nil> 4.00s
     // Happy New Year !
 }
