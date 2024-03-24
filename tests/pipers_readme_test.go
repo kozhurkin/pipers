@@ -8,6 +8,7 @@ import (
 	"github.com/kozhurkin/pipers"
 	"net/http"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -98,15 +99,15 @@ func TestReadmeRef(t *testing.T) {
 
 	results, _ := pp.Resolve()
 
-	fmt.Printf("results: %T, %v \n", results, len(results))
-	fmt.Printf("      a: %T, %v \n", a, a.Status)
-	fmt.Printf("      b: %T, %v \n", b, len(b))
-	fmt.Printf("      c: %T, %v \n", c, c)
+	fmt.Println("results:", reflect.TypeOf(results), len(results))
+	fmt.Println("a:", reflect.TypeOf(a), a.Status)
+	fmt.Println("b:", reflect.TypeOf(b), len(b))
+	fmt.Println("c:", reflect.TypeOf(c), c)
 
 	// results: []interface {}, 3
-	//       a: *http.Response, 200 OK
-	//       b: []uint8, 213
-	//       c: int, 777
+	// a: *http.Response, 200 OK
+	// b: []uint8, 213
+	// c: int, 777
 
 	// without .Ref() you would have to do type conversion for slice elements
 	// a := results[0].(*http.Response)
