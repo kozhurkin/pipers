@@ -68,7 +68,7 @@ func (pp Pipers[R]) ErrorsChan() chan error {
 	}
 	go func() {
 		wg.Wait()
-		printDebug("************** close(errchan)")
+		printDebug("close(errchan)")
 		close(errchan)
 	}()
 
