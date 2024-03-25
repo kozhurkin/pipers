@@ -45,10 +45,6 @@ func FromArgs[R any, A any](args []A, f func(int, A) (R, error)) *PiperSolver[R]
 	return &ps
 }
 
-func FromSlice[R any, A any](args []A, f func(int, A) (R, error)) *PiperSolver[R] {
-	return FromArgs(args, f)
-}
-
 func Ref[P any](p *P, f func() (P, error)) func() (interface{}, error) {
 	return func() (interface{}, error) {
 		res, err := f()
