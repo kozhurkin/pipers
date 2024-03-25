@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/kozhurkin/pipers"
 	"net/http"
-	"os"
+	"os/exec"
 	"reflect"
 	"testing"
 	"time"
@@ -93,20 +93,20 @@ func TestReadmeRef(t *testing.T) {
 
 	pp := pipers.FromFuncs(
 		pipers.Ref(&a, func() (*http.Response, error) { return http.Get("https://github.com") }),
-		pipers.Ref(&b, func() ([]byte, error) { return os.ReadFile("/etc/hosts") }),
+		pipers.Ref(&b, func() ([]byte, error) { return exec.Command("uname", "-m").Output() }),
 		pipers.Ref(&c, func() (int, error) { return 777, nil }),
 	)
 
 	results, _ := pp.Resolve()
 
-	fmt.Println("results:", reflect.TypeOf(results), len(results))
+	fmt.Println("results:", reflect.TypeOf(results), results)
 	fmt.Println("a:", reflect.TypeOf(a), a.Status)
-	fmt.Println("b:", reflect.TypeOf(b), len(b))
+	fmt.Println("b:", reflect.TypeOf(b), string(b))
 	fmt.Println("c:", reflect.TypeOf(c), c)
 
-	// results: []interface {}, 3
-	// a: *http.Response, 200 OK
-	// b: []uint8, 213
+	// results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777]
+	// a: *http.Response 200 OK
+	// b: []uint8 arm64
 	// c: int, 777
 
 	// without .Ref() you would have to do type conversion for slice elements
