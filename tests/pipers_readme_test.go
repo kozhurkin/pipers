@@ -107,7 +107,7 @@ func TestReadmeRef(t *testing.T) {
 	// results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777]
 	// a: *http.Response 200 OK
 	// b: []uint8 arm64
-	// c: int, 777
+	// c: int 777
 
 	// without .Ref() you would have to do type conversion for slice elements
 	// a := results[0].(*http.Response)
