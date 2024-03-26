@@ -77,3 +77,7 @@ func (ps *PiperSolver[R]) Resolve() ([]R, error) {
 	err := ps.FirstError()
 	return ps.Results(), err
 }
+
+func (ps *PiperSolver[R]) Wait() ([]R, error) {
+	return ps.Resolve()
+}
