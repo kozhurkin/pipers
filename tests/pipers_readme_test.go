@@ -216,3 +216,15 @@ func TestReadmeErrorsAll(t *testing.T) {
 
 	<-time.After(time.Second) // TODO wait pipers tails closed
 }
+
+func TestReadmeNoErrors(t *testing.T) {
+	data := make([]int, 9)
+
+	pp := pipers.FromArgs(data, func(i int, v int) (int, error) { return 1, nil }).Concurrency(2)
+
+	errs := pp.FirstNErrors(2)
+	results := pp.Results()
+
+	fmt.Println(results, errs, errs == nil)
+	// [1 1 1 1 1 1 1] []
+}
