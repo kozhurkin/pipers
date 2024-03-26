@@ -23,16 +23,13 @@ jobs:
           go mod download
           go test ./tests -run=. -v -race -covermode=atomic -coverprofile=coverage.out
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-      - name: Benchmark
-        run: |
-          go mod download
-          go test ./tests -run=- -v -bench=. -benchmem -benchtime=100x -race
-
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: kozhurkin/pipers
+
+      - name: Benchmark
+        run: |
+          go mod download
+          go test ./tests -run=- -v -bench=. -benchmem -benchtime=100x -race

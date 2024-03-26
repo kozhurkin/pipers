@@ -14,6 +14,12 @@ import (
 	"time"
 )
 
+var httpclient = http.Client{
+	Transport: &http.Transport{
+		DisableKeepAlives: true,
+	},
+}
+
 func TestMain(m *testing.M) {
 	goleak.VerifyTestMain(m)
 }
