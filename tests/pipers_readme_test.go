@@ -231,13 +231,14 @@ func TestReadmeNoErrors(t *testing.T) {
 
 func TestReadmeNotEnoughtErrors(t *testing.T) {
 	data := make([]error, 9)
-	data[3] = errors.New("throw")
+	data[0] = errors.New("throw")
 
 	pp := pipers.FromArgs(data, func(i int, e error) (int, error) { return 1, e }).Concurrency(2)
 
 	errs := pp.FirstNErrors(2)
 	results := pp.Results()
 
-	fmt.Println(results, errs, errs == nil)
+	fmt.Println(results, len(results), errs)
+	fmt.Println(results.Shift(), len(results))
 	// [1 1 1 1 1 1 1] []
 }
