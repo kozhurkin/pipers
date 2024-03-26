@@ -6,12 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kozhurkin/pipers"
+	"go.uber.org/goleak"
 	"net/http"
 	"os/exec"
 	"reflect"
 	"testing"
 	"time"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestReadmeExample(t *testing.T) {
 	ts := time.Now()
@@ -31,21 +36,6 @@ func TestReadmeExample(t *testing.T) {
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
-	ts := time.Now()
-	pp := pipers.FromFuncs(
-		func() (string, error) { time.Sleep(2 * time.Millisecond); return "Happy", nil },
-		func() (string, error) { time.Sleep(0 * time.Millisecond); return "New", nil },
-		func() (string, error) { time.Sleep(2 * time.Millisecond); return "Year", nil },
-		func() (string, error) { time.Sleep(4 * time.Millisecond); return "!", nil },
-	)
-
-	results, err := pp.Resolve()
-
-	fmt.Println(results, err, time.Since(ts))
-	// [Happy New Year !] <nil> 4.00ms
-}
-
-func TestReadmeFromFuncs2(t *testing.T) {
 	ts := time.Now()
 
 	pp := pipers.FromFuncs(
@@ -92,19 +82,20 @@ func TestReadmeRef(t *testing.T) {
 	var c int
 
 	pp := pipers.FromFuncs(
-		pipers.Ref(&a, func() (*http.Response, error) { return http.Get("https://github.com") }),
+		pipers.Ref(&a, func() (*http.Response, error) { return httpclient.Get("https://github.com") }),
 		pipers.Ref(&b, func() ([]byte, error) { return exec.Command("uname", "-m").Output() }),
 		pipers.Ref(&c, func() (int, error) { return 777, nil }),
 	)
 
-	results, _ := pp.Resolve()
+	results, err := pp.Resolve()
 
-	fmt.Println("results:", reflect.TypeOf(results), results)
+	fmt.Println("results:", reflect.TypeOf(results), results, err)
 	fmt.Println("a:", reflect.TypeOf(a), a.Status)
 	fmt.Println("b:", reflect.TypeOf(b), string(b))
 	fmt.Println("c:", reflect.TypeOf(c), c)
 
-	// results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777]
+	// results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777] <nil>
+
 	// a: *http.Response 200 OK
 	// b: []uint8 arm64
 	// c: int 777
@@ -157,11 +148,11 @@ func TestReadmeConcurrency(t *testing.T) {
 
 	pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
 		fmt.Printf("func(%v, %v) %v\n", i, url, time.Since(ts))
-		res, err := http.Get(url)
+		resp, err := httpclient.Get(url)
 		if err != nil {
 			return -1, err
 		}
-		return res.StatusCode, err
+		return resp.StatusCode, err
 	})
 
 	pp.Concurrency(2)

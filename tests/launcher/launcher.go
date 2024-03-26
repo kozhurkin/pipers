@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go.uber.org/goleak"
 	"math"
 	"sync/atomic"
 	"testing"
@@ -71,7 +70,6 @@ func (l Launcher) Pick(ti int, ei int) *Launcher {
 }
 
 func (l Launcher) Run() *Launcher {
-	defer goleak.VerifyNone(l.T)
 	for _, task := range l.Tasks {
 		task := task
 		for _, expect := range task.Expectations {
