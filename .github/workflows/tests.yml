@@ -22,6 +22,7 @@ jobs:
         run: |
           go mod download
           go test ./tests -run=. -v -race -covermode=atomic -coverprofile=coverage.out -coverpkg=./...
+          cat coverage.out | grep -v launcher > coverage.out
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
