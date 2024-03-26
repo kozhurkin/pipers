@@ -166,6 +166,8 @@ func TestReadmeConcurrency(t *testing.T) {
 	// func(3, https://clickhouse.com) 371.109291ms
 	// func(4, https://invalid.link) 660.3065ms
 	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+
+	<-time.After(time.Second) // TODO wait pipers tails closed
 }
 
 func TestReadmeFirstNErrors(t *testing.T) {
@@ -205,4 +207,6 @@ func TestReadmeErrorsAll(t *testing.T) {
 
 	fmt.Println(results, errs, time.Since(ts))
 	// [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
+
+	<-time.After(time.Second) // TODO wait pipers tails closed
 }

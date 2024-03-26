@@ -21,18 +21,15 @@ jobs:
       - name: Test
         run: |
           go mod download
-          go test ./tests -run=. -v -race -count=1
+          go test ./tests -run=. -v -race -covermode=atomic -coverprofile=coverage.out
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
 
       - name: Benchmark
         run: |
           go mod download
           go test ./tests -run=- -v -bench=. -benchmem -benchtime=100x -race
-
-      - name: Install requirements
-        run: pip install -r requirements.txt
-
-      - name: Run tests and collect coverage
-        run: pytest --cov .
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
