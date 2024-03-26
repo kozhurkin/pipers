@@ -140,7 +140,7 @@ func (r Result) IsEqual(m []int) bool {
 	if len(r) != len(m) {
 		return false
 	}
-	for i, _ := range r {
+	for i := range r {
 		if r[i] != m[i] {
 			return false
 		}
