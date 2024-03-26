@@ -1,17 +1,7 @@
 package pipers
 
-import (
-	"fmt"
-	"time"
-)
-
 func printDebug(template string, rest ...interface{}) {
-	var debug bool
-	//debug = true
-	if debug {
-		args := append([]interface{}{time.Now().String()[0:25]}, rest...)
-		fmt.Printf("pipers:  [ %v ]    "+template+"\n", args...)
-	}
+	//fmt.Printf("pipers:  [ %v ]    "+template+"\n", append([]interface{}{time.Now().String()[0:25]}, rest...)...)
 }
 
 func NewPiper[R any](f func() (R, error)) Piper[R] {
