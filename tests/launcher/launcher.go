@@ -57,18 +57,6 @@ type Launcher struct {
 
 const DURATION_FAILT = 5
 
-func (l Launcher) Pick(ti int, ei int) *Launcher {
-	if ti != -1 {
-		l.Tasks = l.Tasks[ti : ti+1]
-	}
-	for _, t := range l.Tasks {
-		if ei != -1 {
-			t.Expectations = t.Expectations[ei : ei+1]
-		}
-	}
-	return &l
-}
-
 func (l Launcher) Run() *Launcher {
 	for _, task := range l.Tasks {
 		task := task
