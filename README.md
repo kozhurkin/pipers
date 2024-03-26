@@ -3,6 +3,7 @@
 Parallelism helper powered by generics.
 
 [![pipers status](https://github.com/kozhurkin/pipers/actions/workflows/tests.yml/badge.svg)](https://github.com/kozhurkin/pipers/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kozhurkin/pipers)](https://goreportcard.com/report/github.com/kozhurkin/pipers)
 
 #### Why is pipers better than sync.WaitGroup or errgroup.Group?
 ✔ Because pipers can catch errors.\
