@@ -127,12 +127,12 @@ func main() {
     results, err := pp.Resolve()
 
     fmt.Println("results:", reflect.TypeOf(results), results, err)
-    fmt.Println("a:", reflect.TypeOf(a), a.Status)
+    fmt.Println("a:", reflect.TypeOf(a), a.StatusCode)
     fmt.Println("b:", reflect.TypeOf(b), string(b))
     fmt.Println("c:", reflect.TypeOf(c), c)
 
     // results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777] <nil>
-    // a: *http.Response 200 OK
+    // a: *http.Response 200
     // b: []uint8 arm64
     // c: int 777
 

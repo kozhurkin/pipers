@@ -98,13 +98,13 @@ func TestReadmeRef(t *testing.T) {
 	results, err := pp.Resolve()
 
 	fmt.Println("results:", reflect.TypeOf(results), results, err)
-	fmt.Println("a:", reflect.TypeOf(a), a.Status)
+	fmt.Println("a:", reflect.TypeOf(a), a.StatusCode)
 	fmt.Println("b:", reflect.TypeOf(b), string(b))
 	fmt.Println("c:", reflect.TypeOf(c), c)
 
 	// results: []interface {} [0xc000178000 [97 114 109 54 52 10] 777] <nil>
 
-	// a: *http.Response 200 OK
+	// a: *http.Response 200
 	// b: []uint8 arm64
 	// c: int 777
 
@@ -131,16 +131,18 @@ func TestReadmeContext(t *testing.T) {
 
 	results, err := pp.Resolve()
 
+	assert.Equal(t, context.DeadlineExceeded, err)
+	assert.Equal(t, 5, int(time.Since(ts).Milliseconds()))
+
 	fmt.Println(results, err, time.Since(ts))
 
-	/*	func(0, 3) 0.00s
-		func(1, 6) 0.00s
-		func(2, 2) 0.00s
-		func(3, 4) 2.00s
-		func(4, 1) 3.00s
-		func(5, 5) 4.00s
-		[3 0 2 0 1 0] context deadline exceeded 5.00s
-	*/
+	// func(0, 3) 0.00s
+	// func(1, 6) 0.00s
+	// func(2, 2) 0.00s
+	// func(3, 4) 2.00s
+	// func(4, 1) 3.00s
+	// func(5, 5) 4.00s
+	// [3 0 2 0 1 0] context deadline exceeded 5.00s
 }
 
 func TestReadmeConcurrency(t *testing.T) {
@@ -174,6 +176,11 @@ func TestReadmeConcurrency(t *testing.T) {
 	// func(3, https://clickhouse.com) 371.109291ms
 	// func(4, https://invalid.link) 660.3065ms
 	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+
+	assert.Equal(t, 200, results[0])
+	assert.Equal(t, -1, results[4])
+	assert.Equal(t, 0, results[5])
+	assert.NotNil(t, err)
 
 	<-time.After(time.Second) // TODO wait pipers tails closed
 }
