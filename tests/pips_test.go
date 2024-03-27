@@ -3,6 +3,7 @@ package tests
 import (
 	"fmt"
 	"github.com/kozhurkin/pipers/pips"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -14,12 +15,11 @@ func TestPips(t *testing.T) {
 	a, b := <-pa, <-pb
 	fmt.Println(a, b, time.Since(ts))
 	delta := int(time.Now().Sub(ts).Seconds())
-	if delta != 2 {
-		t.Fatal("Should complete in 2 seconds")
-	}
-	if a != 1 || b != 2 {
-		t.Fatal("Wrong return values")
-	}
+
+	assert.Equal(t, delta, 2)
+	assert.Equal(t, a, 1)
+	assert.Equal(t, b, 2)
+
 	return
 }
 func TestPipsFromFuncs(t *testing.T) {
@@ -30,12 +30,11 @@ func TestPipsFromFuncs(t *testing.T) {
 	)
 	fmt.Println(res, time.Since(ts))
 	delta := int(time.Now().Sub(ts).Seconds())
-	if delta != 2 {
-		t.Fatal("Should complete in 2 seconds")
-	}
-	if res[0] != 1 || res[1] != 2 {
-		t.Fatal("Wrong return values")
-	}
+
+	assert.Equal(t, delta, 2)
+	assert.Equal(t, res[0], 1)
+	assert.Equal(t, res[1], 2)
+
 	return
 }
 
@@ -47,11 +46,10 @@ func TestPipsFromArgs(t *testing.T) {
 	})
 	fmt.Println(res, time.Since(ts))
 	delta := int(time.Now().Sub(ts).Seconds())
-	if delta != 2 {
-		t.Fatal("Should complete in 2 seconds")
-	}
-	if res[0] != 1 || res[1] != 2 {
-		t.Fatal("Wrong return values")
-	}
+
+	assert.Equal(t, delta, 2)
+	assert.Equal(t, res[0], 1)
+	assert.Equal(t, res[1], 2)
+
 	return
 }

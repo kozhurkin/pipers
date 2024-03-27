@@ -14,8 +14,8 @@ type PiperSolver[R any] struct {
 }
 
 func (ps *PiperSolver[R]) Add(p Piper[R]) *PiperSolver[R] {
-	ps.mu.RLock()
-	defer ps.mu.RUnlock()
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
 	ps.Pipers = append(ps.Pipers, p)
 	return ps
 }
@@ -43,11 +43,24 @@ func (ps *PiperSolver[R]) createContextWithCancelAndLimit(n int) (PipersContext,
 		ctx = context.Background()
 	}
 	ctx, cancel = context.WithCancel(ctx)
+	ps.setContext(ctx)
 	return PipersContext{ctx, n}, cancel
 }
 
-func (ps *PiperSolver[R]) Context(ctx context.Context) *PiperSolver[R] {
+func (ps *PiperSolver[R]) setContext(ctx context.Context) {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
 	ps.context = ctx
+}
+
+func (ps *PiperSolver[R]) Ctx() context.Context {
+	ps.mu.RLock()
+	defer ps.mu.RUnlock()
+	return ps.context
+}
+
+func (ps *PiperSolver[R]) Context(ctx context.Context) *PiperSolver[R] {
+	ps.setContext(ctx)
 	return ps
 }
 

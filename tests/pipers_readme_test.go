@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kozhurkin/pipers"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 	"net/http"
 	"os/exec"
@@ -233,12 +234,43 @@ func TestReadmeNotEnoughtErrors(t *testing.T) {
 	data := make([]error, 9)
 	data[0] = errors.New("throw")
 
-	pp := pipers.FromArgs(data, func(i int, e error) (int, error) { return 1, e }).Concurrency(2)
+	pp := pipers.FromArgs(data, func(i int, e error) (error, error) { return e, e })
 
-	errs := pp.FirstNErrors(2)
+	errs := pp.Concurrency(2).FirstNErrors(2)
 	results := pp.Results()
 
 	fmt.Println(results, len(results), errs)
 	fmt.Println(results.Shift(), len(results))
-	// [1 1 1 1 1 1 1] []
+	// [throw <nil> <nil> <nil> <nil> <nil> <nil> <nil> <nil>] 9 [throw]
+	// throw 8
+
+	assert.Equal(t, len(data)-1, len(results))
+}
+
+func TestReadmeCtx(t *testing.T) {
+	ts := time.Now()
+	data := []int{100, 200, 300, 400, 500}
+
+	var pp *pipers.PiperSolver[int]
+	pp = pipers.FromArgs(data, func(i int, a int) (int, error) {
+		for i = 0; i < 5; i++ {
+			if a+i == 202 {
+				return a, errors.New("throw")
+			}
+			select {
+			case <-time.After(time.Millisecond):
+				fmt.Println(a + i)
+			case <-pp.Ctx().Done():
+				fmt.Println("break", a+i)
+				return a, nil
+			}
+		}
+		return a, nil
+	})
+
+	results, err := pp.Concurrency(3).Resolve()
+
+	fmt.Println(results, err, time.Since(ts))
+
+	<-time.After(5 * time.Second)
 }
