@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os/exec"
 	"reflect"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -192,6 +193,8 @@ func TestReadmeFirstNErrors(t *testing.T) {
 
 	fmt.Println(results, errs)
 	// [-1 1 -1 0 0 0 0] [one three]
+
+	assert.Equal(t, 2, len(errs))
 }
 
 func TestReadmeErrorsAll(t *testing.T) {
@@ -215,6 +218,8 @@ func TestReadmeErrorsAll(t *testing.T) {
 	fmt.Println(results, errs, time.Since(ts))
 	// [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
 
+	assert.Equal(t, 6, int(time.Since(ts).Milliseconds()))
+
 	<-time.After(time.Second) // TODO wait pipers tails closed
 }
 
@@ -228,6 +233,9 @@ func TestReadmeNoErrors(t *testing.T) {
 
 	fmt.Println(results, errs, errs == nil)
 	// [1 1 1 1 1 1 1] []
+
+	assert.Equal(t, 1, results[8])
+	assert.Nil(t, errs)
 }
 
 func TestReadmeNotEnoughtErrors(t *testing.T) {
@@ -248,6 +256,7 @@ func TestReadmeNotEnoughtErrors(t *testing.T) {
 }
 
 func TestReadmeCtx(t *testing.T) {
+	var cnt int32
 	ts := time.Now()
 	data := []int{100, 200, 300, 400, 500}
 
@@ -255,7 +264,7 @@ func TestReadmeCtx(t *testing.T) {
 	pp = pipers.FromArgs(data, func(i int, a int) (int, error) {
 		for i = 0; i < 5; i++ {
 			if a+i == 202 {
-				return a, errors.New("throw")
+				return -1, errors.New("throw")
 			}
 			select {
 			case <-time.After(time.Millisecond):
@@ -265,6 +274,7 @@ func TestReadmeCtx(t *testing.T) {
 				return a, nil
 			}
 		}
+		atomic.AddInt32(&cnt, 1)
 		return a, nil
 	})
 
@@ -272,5 +282,6 @@ func TestReadmeCtx(t *testing.T) {
 
 	fmt.Println(results, err, time.Since(ts))
 
-	<-time.After(5 * time.Second)
+	<-time.After(10 * time.Millisecond)
+	assert.Equal(t, 0, int(atomic.LoadInt32(&cnt)))
 }

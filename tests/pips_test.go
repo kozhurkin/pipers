@@ -22,6 +22,7 @@ func TestPips(t *testing.T) {
 
 	return
 }
+
 func TestPipsFromFuncs(t *testing.T) {
 	ts := time.Now()
 	res := pips.FromFuncs(
