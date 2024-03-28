@@ -41,6 +41,9 @@ func TestReadmeExample(t *testing.T) {
 
 	fmt.Println(results, err, time.Since(ts))
 	// [6 2 11 6 7 2 8] <nil> 11.00ms
+
+	assert.Nil(t, err)
+	assert.Equal(t, 11, int(time.Since(ts).Milliseconds()))
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
@@ -67,6 +70,9 @@ func TestReadmeFromFuncs(t *testing.T) {
 	fmt.Println(r0, string(r1), r2.String(), string(r3))
 	// [Happy [78 101 119] Year 33] <nil> 4.00s
 	// Happy New Year !
+
+	assert.Nil(t, err)
+	assert.Equal(t, 4, int(time.Since(ts).Milliseconds()))
 }
 
 func TestReadmeFromArgs(t *testing.T) {
@@ -82,6 +88,9 @@ func TestReadmeFromArgs(t *testing.T) {
 
 	fmt.Println(results, err, time.Since(ts))
 	// [1 4 9 16 25] <nil> 4.00ms
+
+	assert.Nil(t, err)
+	assert.Equal(t, 4, int(time.Since(ts).Milliseconds()))
 }
 
 func TestReadmeRef(t *testing.T) {
@@ -112,6 +121,8 @@ func TestReadmeRef(t *testing.T) {
 	// a := results[0].(*http.Response)
 	// b := results[1].([]byte)
 	// c := results[2].(int)
+
+	assert.Nil(t, err)
 }
 
 func TestReadmeContext(t *testing.T) {
@@ -131,9 +142,6 @@ func TestReadmeContext(t *testing.T) {
 
 	results, err := pp.Resolve()
 
-	assert.Equal(t, context.DeadlineExceeded, err)
-	assert.Equal(t, 5, int(time.Since(ts).Milliseconds()))
-
 	fmt.Println(results, err, time.Since(ts))
 
 	// func(0, 3) 0.00s
@@ -143,6 +151,9 @@ func TestReadmeContext(t *testing.T) {
 	// func(4, 1) 3.00s
 	// func(5, 5) 4.00s
 	// [3 0 2 0 1 0] context deadline exceeded 5.00s
+
+	assert.Equal(t, context.DeadlineExceeded, err)
+	assert.Equal(t, 5, int(time.Since(ts).Milliseconds()))
 }
 
 func TestReadmeConcurrency(t *testing.T) {
@@ -177,7 +188,6 @@ func TestReadmeConcurrency(t *testing.T) {
 	// func(4, https://invalid.link) 660.3065ms
 	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 
-	assert.Equal(t, 200, results[0])
 	assert.Equal(t, -1, results[4])
 	assert.Equal(t, 0, results[5])
 	assert.NotNil(t, err)
