@@ -342,28 +342,30 @@ func TestReadmeFromFuncsCtx(t *testing.T) {
 	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
 }
 
-func TestReadmeWaitTail(t *testing.T) {
+func TestReadmeTail(t *testing.T) {
 	ts := time.Now()
-	args := []int{1, 2, 3, 4, 5}
+	args := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
 	pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
-		<-time.After(time.Duration(v) * time.Millisecond)
 		if v == 3 {
+			<-time.After(time.Millisecond)
 			return 0, errors.New("throw")
 		}
+		<-time.After(5 * time.Millisecond)
 		return v, nil
 	})
 
-	err := pp.FirstError()
+	err := pp.Concurrency(5).FirstError()
 	fmt.Println(err, time.Since(ts))
 
-	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
-
+	//...vvvv
 	<-pp.Tail()
-	fmt.Println(pp.Results(), time.Since(ts))
+	results := pp.Results()
+	fmt.Println(results, time.Since(ts))
 
-	// throw 3.00s
-	// [1 2 0 4 5] 5.00s
+	// throw 1.00s
+	// [1 2 0 4 5 0 0 0 0] 5.00s
 
+	assert.Equal(t, 5, results[4])
 	assert.InDelta(t, 5, int(time.Since(ts).Milliseconds()), 1)
 }

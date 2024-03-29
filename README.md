@@ -287,24 +287,27 @@ import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
-    args := []int{1, 2, 3, 4, 5}
+    args := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
     pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
-        <-time.After(time.Duration(v) * time.Millisecond)
         if v == 3 {
+            <-time.After(time.Second)
             return 0, errors.New("throw")
         }
+        <-time.After(5 * time.Millisecond)
         return v, nil
     })
 
-    err := pp.FirstError()
+    err := pp.Concurrency(5).FirstError()
     fmt.Println(err, time.Since(ts))
 
+    //...vvvv
     <-pp.Tail()
-    fmt.Println(pp.Results(), time.Since(ts))
+    results := pp.Results()
+    fmt.Println(results, time.Since(ts))
 
-    // throw 3.00s
-    // [1 2 0 4 5] 5.00s
+    // throw 1.00s
+    // [1 2 0 4 5 0 0 0 0] 5.00s
 }
 ```
 
