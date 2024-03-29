@@ -283,7 +283,7 @@ func TestReadmeCtx(t *testing.T) {
 		fact := 1
 		for i := 2; i <= n; i++ {
 			select {
-			case <-time.After(time.Second):
+			case <-time.After(time.Millisecond):
 				if fact *= i; fact > math.MaxUint8 {
 					return uint8(fact), errors.New("uint8 overflow")
 				}
