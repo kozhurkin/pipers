@@ -9,9 +9,8 @@ type PiperSolver[T any] struct {
 	pipers      Pipers[T]
 	concurrency int
 	context     context.Context
-	once        sync.Once
-	mu          sync.RWMutex
 	tail        chan struct{}
+	mu          sync.RWMutex
 }
 
 func (ps *PiperSolver[T]) Add(p Piper[T]) *PiperSolver[T] {

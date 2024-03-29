@@ -289,25 +289,23 @@ func main() {
     ts := time.Now()
     args := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    defer cancel()
+
     pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
-        if v == 3 {
-            <-time.After(time.Second)
-            return 0, errors.New("throw")
-        }
         <-time.After(5 * time.Second)
         return v, nil
     })
 
-    err := pp.Concurrency(5).FirstError()
-    fmt.Println(err, time.Since(ts))
+    err := pp.Context(ctx).Concurrency(5).FirstError()
+    fmt.Println(pp.Results(), err, time.Since(ts))
 
     //...vvvv
     <-pp.Tail()
-    results := pp.Results()
-    fmt.Println(results, time.Since(ts))
+    fmt.Println(pp.Results(), time.Since(ts))
 
-    // throw 1.00s
-    // [1 2 0 4 5 0 0 0 0] 5.00s
+    // [0 0 0 0 0 0 0 0 0] context deadline exceeded 1.00s
+    // [1 2 3 4 5 0 0 0 0] 5.00s
 }
 ```
 
