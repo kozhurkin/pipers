@@ -324,11 +324,11 @@ func main() {
 
     pp := pipers.FromFuncsCtx(
         func(ctx context.Context) (bool, error) {
-            <-time.After(3 * time.Millisecond)
+            <-time.After(3 * time.Second)
             return true, errors.New("throw")
         },
         func(ctx context.Context) (bool, error) {
-            ticker := time.NewTicker(time.Millisecond)
+            ticker := time.NewTicker(time.Second)
             for {
                 select {
                 case <-ticker.C:
@@ -364,7 +364,7 @@ func main() {
         fact := 1
         for i := 2; i <= n; i++ {
             select {
-            case <-time.After(time.Millisecond):
+            case <-time.After(time.Second):
                 if fact *= i; fact > math.MaxUint8 {
                     return uint8(fact), errors.New("uint8 overflow")
                 }
