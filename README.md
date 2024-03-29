@@ -56,6 +56,7 @@ Usage
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
+✔ [`pp.Ctx()`](#ppctx)
 
 ### pipers.FromFuncs(...funcs)
 ``` golang
