@@ -17,31 +17,24 @@ func (pp Pipers[T]) Run(ctx PipersContext, concurrency int) Pipers[T] {
 	}
 	go func() {
 		traffic := make(chan struct{}, concurrency)
-		catch := make(chan struct{})
-		var once sync.Once
-		var errcnt int32
 		defer func() {
 			printDebug("close(traffic)")
 			close(traffic)
-			once.Do(func() {
-				printDebug("close(catch)")
-				close(catch)
-			})
 		}()
+		var errcnt int32
+		limit := int32(ctx.Limit)
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
 		for _, p := range pp {
 			p := p
 			select {
 			case <-ctx.Done():
 				p.Close()
-			case <-catch:
-				p.Close()
 			case traffic <- struct{}{}:
 				go func() {
 					err := <-p.run()
-					if err != nil && atomic.AddInt32(&errcnt, 1) >= int32(ctx.Limit) {
-						once.Do(func() {
-							close(catch)
-						})
+					if err != nil && atomic.AddInt32(&errcnt, 1) >= limit {
+						cancel()
 					} else {
 						<-traffic
 					}
@@ -115,7 +108,7 @@ func (pp Pipers[T]) Results() Results[T] {
 	res := make([]T, len(pp))
 	for i, p := range pp {
 		select {
-		case res[i] = <-p.Out:
+		case res[i] = <-p.Val:
 		default:
 			continue
 		}

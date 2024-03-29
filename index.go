@@ -8,7 +8,7 @@ func printDebug(template string, rest ...interface{}) {
 
 func NewPiper[T any](f func() (T, error)) Piper[T] {
 	return Piper[T]{
-		Out: make(chan T, 1),
+		Val: make(chan T, 1),
 		Err: make(chan error, 1),
 		Job: f,
 	}

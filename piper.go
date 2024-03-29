@@ -1,14 +1,14 @@
 package pipers
 
 type Piper[T any] struct {
-	Out chan T
+	Val chan T
 	Err chan error
 	Job func() (T, error)
 }
 
 func (p Piper[T]) Close() Piper[T] {
 	printDebug("% v.Close()", p)
-	close(p.Out)
+	close(p.Val)
 	close(p.Err)
 	return p
 }
@@ -25,7 +25,7 @@ func (p Piper[T]) run() chan error {
 			done <- e
 		}
 		close(done)
-		p.Out <- v
+		p.Val <- v
 		p.Err <- e
 		p.Close()
 	}()
