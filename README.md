@@ -47,9 +47,9 @@ func main() {
 Usage
 -----
 
-✔ [`pipers.FromFuncs(...funcs)`](#pipersfromfuncsfuncs)\
+✔ [`pipers.FromFuncs(...funcs)`](#pipersfromfuncsfuncs)
 ✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
-✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handler)\
+✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handler)
 ✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)\
 ✔ [`pipers.Ref(&v, func)`](#pipersrefv-func)\
 ✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
