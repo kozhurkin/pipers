@@ -47,16 +47,16 @@ func main() {
 Usage
 -----
 
-✔ [`pipers.FromFuncs(...funcs)`](#pipersfromfuncsfuncs)
-✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
-✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handler)
-✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)\
+✔ [`pipers.FromFuncs(...funcs)`](#pipersfromfuncsfuncs)\
+✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handler)\
 ✔ [`pipers.Ref(&v, func)`](#pipersrefv-func)\
 ✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
 ✔ [`pp.Ctx()`](#ppctx)
+✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
+✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)\
 
 ### pipers.FromFuncs(...funcs)
 ``` golang
@@ -88,43 +88,6 @@ func main() {
 }
 ```
 
-### pipers.FromFuncsCtx(...funcs)
-``` golang
-import github.com/kozhurkin/pipers
-
-func main() {
-    ts := time.Now()
-
-    pp := pipers.FromFuncsCtx(
-        func(ctx context.Context) (bool, error) {
-            <-time.After(3 * time.Millisecond)
-            return true, errors.New("throw")
-        },
-        func(ctx context.Context) (bool, error) {
-            ticker := time.NewTicker(time.Millisecond)
-            for {
-                select {
-                case <-ticker.C:
-                    fmt.Println("tick")
-                case <-ctx.Done():
-                    fmt.Println("break")
-                    ticker.Stop()
-                    return true, nil
-                }
-            }
-        },
-    )
-
-    results, err := pp.Resolve()
-
-    fmt.Println(results, err, time.Since(ts))
-    // tick
-    // tick
-    // break
-    // [true false] throw 3.00s
-}
-```
-
 ### pipers.FromArgs(args, handler)
 ``` golang
 import github.com/kozhurkin/pipers
@@ -143,39 +106,6 @@ func main() {
 
     fmt.Println(results, err, time.Since(ts))
     // [1 4 9 16 25] <nil> 4.00s
-}
-```
-
-### pipers.FromArgsCtx(args, handler)
-``` golang
-import github.com/kozhurkin/pipers
-
-func main() {
-    ts := time.Now()
-    data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-
-    pp := pipers.FromArgsCtx(data, func(ctx context.Context, _ int, n int) (uint8, error) {
-        fact := 1
-        for i := 2; i <= n; i++ {
-            select {
-            case <-time.After(time.Millisecond):
-                if fact *= i; fact > math.MaxUint8 {
-                    return uint8(fact), errors.New("uint8 overflow")
-                }
-            case <-ctx.Done():
-                fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
-                return uint8(fact), nil
-            }
-        }
-        return uint8(fact), nil
-    })
-
-    results, err := pp.Concurrency(3).Resolve()
-
-    fmt.Println(results, err, time.Since(ts))
-    // [1 2 6 24 120 208 0 0 0] uint8 overflow 8.00s
-    // break 7! iterations skipped: 1
-    // break 8! iterations skipped: 4
 }
 ```
 
@@ -348,7 +278,6 @@ func main() {
 }
 ```
 
-
 ### pp.Ctx()
 Returns a wrapped context that will be immediately canceled if an error occurs.\
 Can be used to interrupt execution in parallel goroutines.
@@ -383,5 +312,75 @@ func main() {
     // [2 24 208 0 0] uint8 overflow 5.00s
     // break 10! iterations skipped: 4
     // break 12! iterations skipped: 8
+}
+```
+
+### pipers.FromFuncsCtx(...funcs)
+``` golang
+import github.com/kozhurkin/pipers
+
+func main() {
+    ts := time.Now()
+
+    pp := pipers.FromFuncsCtx(
+        func(ctx context.Context) (bool, error) {
+            <-time.After(3 * time.Millisecond)
+            return true, errors.New("throw")
+        },
+        func(ctx context.Context) (bool, error) {
+            ticker := time.NewTicker(time.Millisecond)
+            for {
+                select {
+                case <-ticker.C:
+                    fmt.Println("tick")
+                case <-ctx.Done():
+                    fmt.Println("break")
+                    ticker.Stop()
+                    return true, nil
+                }
+            }
+        },
+    )
+
+    results, err := pp.Resolve()
+
+    fmt.Println(results, err, time.Since(ts))
+    // tick
+    // tick
+    // break
+    // [true false] throw 3.00s
+}
+```
+
+### pipers.FromArgsCtx(args, handler)
+``` golang
+import github.com/kozhurkin/pipers
+
+func main() {
+    ts := time.Now()
+    data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+    pp := pipers.FromArgsCtx(data, func(ctx context.Context, _ int, n int) (uint8, error) {
+        fact := 1
+        for i := 2; i <= n; i++ {
+            select {
+            case <-time.After(time.Millisecond):
+                if fact *= i; fact > math.MaxUint8 {
+                    return uint8(fact), errors.New("uint8 overflow")
+                }
+            case <-ctx.Done():
+                fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
+                return uint8(fact), nil
+            }
+        }
+        return uint8(fact), nil
+    })
+
+    results, err := pp.Concurrency(3).Resolve()
+
+    fmt.Println(results, err, time.Since(ts))
+    // [1 2 6 24 120 208 0 0 0] uint8 overflow 8.00s
+    // break 7! iterations skipped: 1
+    // break 8! iterations skipped: 4
 }
 ```
