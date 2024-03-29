@@ -48,9 +48,9 @@ Usage
 -----
 
 ✔ [`pipers.FromFuncs(...funcs)`](#pipersfromfuncsfuncs)\
-✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromctxfuncsfuncs)\
+✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
 ✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handler)\
-✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromctxargsargs-handler)\
+✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)\
 ✔ [`pipers.Ref(&v, func)`](#pipersrefv-func)\
 ✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
