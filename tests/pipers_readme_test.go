@@ -312,7 +312,7 @@ func TestReadmeCtx(t *testing.T) {
 func TestReadmeFromArgsCtx(t *testing.T) {
 	var cnt int32
 	ts := time.Now()
-	data := []int{2, 4, 8, 10, 12}
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
 	pp := pipers.FromArgsCtx(data, func(ctx context.Context, _ int, n int) (uint8, error) {
 		fact := 1
@@ -334,33 +334,36 @@ func TestReadmeFromArgsCtx(t *testing.T) {
 	results, err := pp.Concurrency(3).Resolve()
 
 	fmt.Println(results, err, time.Since(ts))
-	// [2 24 208 0 0] uint8 overflow 5.00s
-	// break 10! iterations skipped: 4
-	// break 12! iterations skipped: 8
+	// [1 2 6 24 120 208 0 0 0] uint8 overflow 8.00s
+	// break 7! iterations skipped: 1
+	// break 8! iterations skipped: 4
 
 	<-time.After(10 * time.Millisecond)
-	assert.Equal(t, 2, int(atomic.LoadInt32(&cnt)))
+	assert.Equal(t, 5, int(atomic.LoadInt32(&cnt)))
 }
 
 func TestReadmeFromFuncsCtx(t *testing.T) {
 	ts := time.Now()
 
-	pp := pipers.FromFuncsCtx(func(ctx context.Context) (bool, error) {
-		<-time.After(3 * time.Millisecond)
-		return true, errors.New("throw")
-	}, func(ctx context.Context) (bool, error) {
-		ticker := time.NewTicker(time.Millisecond)
-		for {
-			select {
-			case <-ticker.C:
-				fmt.Println("tick")
-			case <-ctx.Done():
-				fmt.Println("break")
-				ticker.Stop()
-				return true, nil
+	pp := pipers.FromFuncsCtx(
+		func(ctx context.Context) (bool, error) {
+			<-time.After(3 * time.Millisecond)
+			return true, errors.New("throw")
+		},
+		func(ctx context.Context) (bool, error) {
+			ticker := time.NewTicker(time.Millisecond)
+			for {
+				select {
+				case <-ticker.C:
+					fmt.Println("tick")
+				case <-ctx.Done():
+					fmt.Println("break")
+					ticker.Stop()
+					return true, nil
+				}
 			}
-		}
-	})
+		},
+	)
 
 	results, err := pp.Resolve()
 
