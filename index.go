@@ -16,7 +16,7 @@ func NewPiper[T any](f func() (T, error)) Piper[T] {
 
 func FromFuncs[T any](funcs ...func() (T, error)) *PiperSolver[T] {
 	ps := PiperSolver[T]{
-		Pipers: make(Pipers[T], 0, len(funcs)),
+		pipers: make(Pipers[T], 0, len(funcs)),
 	}
 	for _, f := range funcs {
 		ps.AddFunc(f)
@@ -26,7 +26,7 @@ func FromFuncs[T any](funcs ...func() (T, error)) *PiperSolver[T] {
 
 func FromFuncsCtx[T any](funcs ...func(context.Context) (T, error)) *PiperSolver[T] {
 	ps := PiperSolver[T]{
-		Pipers: make(Pipers[T], 0, len(funcs)),
+		pipers: make(Pipers[T], 0, len(funcs)),
 	}
 	for _, f := range funcs {
 		ps.AddFuncCtx(f)
