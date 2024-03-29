@@ -54,9 +54,9 @@ Usage
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
-✔ [`pp.Ctx()`](#ppctx)
+✔ [`pp.Ctx()`](#ppctx)\
 ✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
-✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)\
+✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)
 
 ### pipers.FromFuncs(...funcs)
 ``` golang
