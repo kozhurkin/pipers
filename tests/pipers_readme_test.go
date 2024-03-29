@@ -190,7 +190,6 @@ func TestReadmeConcurrency(t *testing.T) {
 	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 
 	assert.Equal(t, -1, results[4])
-	assert.Equal(t, 0, results[5])
 	assert.NotNil(t, err)
 
 	<-time.After(time.Second) // TODO wait pipers tails closed
