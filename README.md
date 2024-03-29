@@ -47,7 +47,7 @@ func main() {
 Usage
 -----
 
-✔ [`pipers.FromFuncs(funcs)`](#pipersfromfuncsfuncs)\
+✔ [`pipers.FromFuncs(...func)`](#pipersfromfuncsfuncs)\
 ✔ [`pipers.FromArgs(args, handler)`](#pipersfromargsargs-handlers)\
 ✔ [`pipers.Ref(&v, func)`](#pipersrefv-func)\
 ✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
@@ -296,6 +296,7 @@ func main() {
                 if fact *= i; fact > math.MaxUint8 {
                     return uint8(fact), errors.New("uint8 overflow")
                 }
+            //........vvv
             case <-pp.Ctx().Done():
                 fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
                 return uint8(fact), nil

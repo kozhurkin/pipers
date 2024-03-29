@@ -60,7 +60,7 @@ func FromArgsCtx[T any, A any](args []A, f func(context.Context, int, A) (T, err
 	return &ps
 }
 
-func Ref[R any](p *R, f func() (R, error)) func() (interface{}, error) {
+func Ref[T any](p *T, f func() (T, error)) func() (interface{}, error) {
 	return func() (interface{}, error) {
 		res, err := f()
 		*p = res
