@@ -25,6 +25,13 @@ func (ps *PiperSolver[R]) AddFunc(f func() (R, error)) *PiperSolver[R] {
 	return ps.Add(p)
 }
 
+func (ps *PiperSolver[R]) AddFuncCtx(f func(ctx context.Context) (R, error)) *PiperSolver[R] {
+	p := NewPiper(func() (R, error) {
+		return f(ps.Ctx())
+	})
+	return ps.Add(p)
+}
+
 func (ps *PiperSolver[R]) Concurrency(concurrency int) *PiperSolver[R] {
 	ps.concurrency = concurrency
 	return ps
