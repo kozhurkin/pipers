@@ -341,3 +341,34 @@ func TestReadmeFromArgsCtx(t *testing.T) {
 	<-time.After(10 * time.Millisecond)
 	assert.Equal(t, 2, int(atomic.LoadInt32(&cnt)))
 }
+
+func TestReadmeFromFuncsCtx(t *testing.T) {
+	ts := time.Now()
+
+	pp := pipers.FromFuncsCtx(func(ctx context.Context) (bool, error) {
+		<-time.After(3 * time.Millisecond)
+		return true, errors.New("throw")
+	}, func(ctx context.Context) (bool, error) {
+		ticker := time.NewTicker(time.Millisecond)
+		for {
+			select {
+			case <-ticker.C:
+				fmt.Println("tick")
+			case <-ctx.Done():
+				fmt.Println("break")
+				ticker.Stop()
+				return true, nil
+			}
+		}
+	})
+
+	results, err := pp.Resolve()
+
+	fmt.Println(results, err, time.Since(ts))
+	// tick
+	// tick
+	// break
+	// [true false] throw 3.00s
+
+	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
+}
