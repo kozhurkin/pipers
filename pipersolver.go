@@ -97,10 +97,11 @@ func (ps *PiperSolver[T]) Resolve() ([]T, error) {
 	return ps.Results(), err
 }
 
-func (ps *PiperSolver[T]) Wait() ([]T, error) {
-	return ps.Resolve()
-}
-
 func (ps *PiperSolver[T]) Tail() chan struct{} {
 	return ps.tail
+}
+
+func (ps *PiperSolver[T]) WaitTail() *PiperSolver[T] {
+	<-ps.Tail()
+	return ps
 }

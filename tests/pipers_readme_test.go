@@ -192,7 +192,7 @@ func TestReadmeConcurrency(t *testing.T) {
 	assert.Equal(t, -1, results[4])
 	assert.NotNil(t, err)
 
-	<-pp.Tail()
+	pp.WaitTail()
 	fmt.Println(time.Since(ts))
 }
 
@@ -340,4 +340,30 @@ func TestReadmeFromFuncsCtx(t *testing.T) {
 	// [true false] throw 3.00s
 
 	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
+}
+
+func TestReadmeWaitTail(t *testing.T) {
+	ts := time.Now()
+	args := []int{1, 2, 3, 4, 5}
+
+	pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
+		<-time.After(time.Duration(v) * time.Millisecond)
+		if v == 3 {
+			return 0, errors.New("throw")
+		}
+		return v, nil
+	})
+
+	err := pp.FirstError()
+	fmt.Println(err, time.Since(ts))
+
+	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
+	//.vvvvvvvv
+	pp.WaitTail()
+	fmt.Println(pp.Results(), time.Since(ts))
+
+	// throw 3.00s
+	// [1 2 0 4 5] 5.00s
+
+	assert.InDelta(t, 5, int(time.Since(ts).Milliseconds()), 1)
 }

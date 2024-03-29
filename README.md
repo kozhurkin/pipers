@@ -54,6 +54,7 @@ Usage
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
+✔ [`pp.WaitTail()`](#ppwaittail)\
 ✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
 ✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)
 
@@ -274,6 +275,36 @@ func main() {
 
     fmt.Println(results, errs, time.Since(ts))
     // [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
+}
+```
+
+### pp.WaitTail()
+As mentioned above, Pipers returns an error immediately.
+However, concurrently running goroutines may be executed for some time.\
+If you need to be guaranteed to wait for parallel running goroutines to complete, use `pp.WaitTail()`.
+``` golang
+import github.com/kozhurkin/pipers
+
+func main() {
+    ts := time.Now()
+    args := []int{1, 2, 3, 4, 5}
+
+    pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
+        <-time.After(time.Duration(v) * time.Millisecond)
+        if v == 3 {
+            return 0, errors.New("throw")
+        }
+        return v, nil
+    })
+
+    err := pp.FirstError()
+    fmt.Println(err, time.Since(ts))
+
+    pp.WaitTail()
+    fmt.Println(pp.Results(), time.Since(ts))
+
+    // throw 3.00s
+    // [1 2 0 4 5] 5.00s
 }
 ```
 

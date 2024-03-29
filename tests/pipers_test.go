@@ -150,6 +150,6 @@ var tasks = launcher.Tasks{
 
 func TestPipers(t *testing.T) {
 	launcher.Launcher{t, tasks, func(ctx context.Context, args []int, f func(int, int) (int, error), concurrency int) ([]int, error) {
-		return pipers.FromArgs(args, f).Context(ctx).Concurrency(concurrency).Wait()
+		return pipers.FromArgs(args, f).Context(ctx).Concurrency(concurrency).Resolve()
 	}}.Run()
 }
