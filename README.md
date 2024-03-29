@@ -297,7 +297,9 @@ func main() {
         return v, nil
     })
 
-    err := pp.Context(ctx).Concurrency(5).FirstError()
+    pp.Context(ctx).Concurrency(5)
+
+    err := pp.FirstError()
     fmt.Println(pp.Results(), err, time.Since(ts))
 
     //...vvvv
