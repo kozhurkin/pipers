@@ -294,7 +294,7 @@ func main() {
             <-time.After(time.Second)
             return 0, errors.New("throw")
         }
-        <-time.After(5 * time.Millisecond)
+        <-time.After(5 * time.Second)
         return v, nil
     })
 
