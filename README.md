@@ -54,7 +54,7 @@ Usage
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
-✔ [`pp.WaitTail()`](#ppwaittail)\
+✔ [`pp.Tail()`](#pptail)\
 ✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
 ✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)
 
@@ -278,10 +278,10 @@ func main() {
 }
 ```
 
-### pp.WaitTail()
-As mentioned above, Pipers returns an error immediately.
+### pp.Tail()
+As mentioned above, Pipers returns an error immediately.\
 However, concurrently running goroutines may be executed for some time.\
-If you need to be guaranteed to wait for parallel running goroutines to complete, use `pp.WaitTail()`.
+If you need to be guaranteed to wait for parallel running goroutines to complete, use `pp.Tail()`.
 ``` golang
 import github.com/kozhurkin/pipers
 
@@ -300,7 +300,7 @@ func main() {
     err := pp.FirstError()
     fmt.Println(err, time.Since(ts))
 
-    pp.WaitTail()
+    <-pp.Tail()
     fmt.Println(pp.Results(), time.Since(ts))
 
     // throw 3.00s

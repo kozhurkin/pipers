@@ -100,8 +100,3 @@ func (ps *PiperSolver[T]) Resolve() ([]T, error) {
 func (ps *PiperSolver[T]) Tail() chan struct{} {
 	return ps.tail
 }
-
-func (ps *PiperSolver[T]) WaitTail() *PiperSolver[T] {
-	<-ps.Tail()
-	return ps
-}

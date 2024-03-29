@@ -192,7 +192,7 @@ func TestReadmeConcurrency(t *testing.T) {
 	assert.Equal(t, -1, results[4])
 	assert.NotNil(t, err)
 
-	pp.WaitTail()
+	<-pp.Tail()
 	fmt.Println(time.Since(ts))
 }
 
@@ -358,8 +358,8 @@ func TestReadmeWaitTail(t *testing.T) {
 	fmt.Println(err, time.Since(ts))
 
 	assert.InDelta(t, 3, int(time.Since(ts).Milliseconds()), 1)
-	//.vvvvvvvv
-	pp.WaitTail()
+
+	<-pp.Tail()
 	fmt.Println(pp.Results(), time.Since(ts))
 
 	// throw 3.00s
