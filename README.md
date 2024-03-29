@@ -53,7 +53,8 @@ Usage
 ✔ [`pp.Concurrency(n)`](#ppconcurrencyn)\
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
-✔ [`pp.ErrorsAll()`](#pperrorsall)
+✔ [`pp.ErrorsAll()`](#pperrorsall)\
+✔ [`pp.Ctx()`](#ppctx)
 
 ### pipers.FromFuncs(funcs)
 ``` golang
@@ -272,5 +273,42 @@ func main() {
 
     fmt.Println(results, errs, time.Since(ts))
     // [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
+}
+```
+
+
+### pp.Ctx()
+Returns a wrapped context that will be immediately canceled if an error occurs.\
+Can be used to interrupt execution in parallel goroutines.
+``` golang
+import github.com/kozhurkin/pipers
+
+func main() {
+    ts := time.Now()
+    data := []int{2, 4, 8, 10, 12}
+
+    var pp *pipers.PiperSolver[uint8]
+    pp = pipers.FromArgs(data, func(_ int, n int) (uint8, error) {
+        fact := 1
+        for i := 2; i <= n; i++ {
+            select {
+            case <-time.After(time.Second):
+                if fact *= i; fact > math.MaxUint8 {
+                    return uint8(fact), errors.New("uint8 overflow")
+                }
+            case <-pp.Ctx().Done():
+                fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
+                return uint8(fact), nil
+            }
+        }
+        return uint8(fact), nil
+    })
+
+    results, err := pp.Concurrency(3).Resolve()
+
+    fmt.Println(results, err, time.Since(ts))
+    // [2 24 208 0 0] uint8 overflow 5.00s
+    // break 10! iterations skipped: 4
+    // break 12! iterations skipped: 8
 }
 ```

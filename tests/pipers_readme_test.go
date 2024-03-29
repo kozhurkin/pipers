@@ -8,6 +8,7 @@ import (
 	"github.com/kozhurkin/pipers"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
+	"math"
 	"net/http"
 	"os/exec"
 	"reflect"
@@ -275,30 +276,33 @@ func TestReadmeNotEnoughtErrors(t *testing.T) {
 func TestReadmeCtx(t *testing.T) {
 	var cnt int32
 	ts := time.Now()
-	data := []int{100, 200, 300, 400, 500}
+	data := []int{2, 4, 8, 10, 12}
 
-	var pp *pipers.PiperSolver[int]
-	pp = pipers.FromArgs(data, func(i int, a int) (int, error) {
-		for i = 0; i < 5; i++ {
-			if a+i == 202 {
-				return -1, errors.New("throw")
-			}
+	var pp *pipers.PiperSolver[uint8]
+	pp = pipers.FromArgs(data, func(_ int, n int) (uint8, error) {
+		fact := 1
+		for i := 2; i <= n; i++ {
 			select {
-			case <-time.After(time.Millisecond):
-				fmt.Println(a + i)
+			case <-time.After(time.Second):
+				if fact *= i; fact > math.MaxUint8 {
+					return uint8(fact), errors.New("uint8 overflow")
+				}
 			case <-pp.Ctx().Done():
-				fmt.Println("break", a+i)
-				return a, nil
+				fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
+				return uint8(fact), nil
 			}
 		}
 		atomic.AddInt32(&cnt, 1)
-		return a, nil
+		return uint8(fact), nil
 	})
 
 	results, err := pp.Concurrency(3).Resolve()
 
 	fmt.Println(results, err, time.Since(ts))
+	// [2 24 208 0 0] uint8 overflow 5.00s
+	// break 10! iterations skipped: 4
+	// break 12! iterations skipped: 8
 
 	<-time.After(10 * time.Millisecond)
-	assert.Equal(t, 0, int(atomic.LoadInt32(&cnt)))
+	assert.Equal(t, 2, int(atomic.LoadInt32(&cnt)))
 }
