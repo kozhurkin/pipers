@@ -4,5 +4,6 @@ import "context"
 
 type PipersContext struct {
 	context.Context
-	Limit int
+	Limit    int
+	TailDone chan struct{}
 }

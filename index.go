@@ -35,29 +35,25 @@ func FromFuncsCtx[T any](funcs ...func(context.Context) (T, error)) *PiperSolver
 }
 
 func FromArgs[T any, A any](args []A, f func(int, A) (T, error)) *PiperSolver[T] {
-	ps := PiperSolver[T]{
-		Pipers: make(Pipers[T], 0, len(args)),
-	}
+	funcs := make([]func() (T, error), len(args))
 	for i, v := range args {
 		i, v := i, v
-		ps.AddFunc(func() (T, error) {
+		funcs[i] = func() (T, error) {
 			return f(i, v)
-		})
+		}
 	}
-	return &ps
+	return FromFuncs(funcs...)
 }
 
 func FromArgsCtx[T any, A any](args []A, f func(context.Context, int, A) (T, error)) *PiperSolver[T] {
-	ps := PiperSolver[T]{
-		Pipers: make(Pipers[T], 0, len(args)),
-	}
+	funcs := make([]func(ctx context.Context) (T, error), len(args))
 	for i, v := range args {
 		i, v := i, v
-		ps.AddFuncCtx(func(ctx context.Context) (T, error) {
+		funcs[i] = func(ctx context.Context) (T, error) {
 			return f(ctx, i, v)
-		})
+		}
 	}
-	return &ps
+	return FromFuncsCtx(funcs...)
 }
 
 func Ref[T any](p *T, f func() (T, error)) func() (interface{}, error) {

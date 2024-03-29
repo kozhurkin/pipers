@@ -192,7 +192,8 @@ func TestReadmeConcurrency(t *testing.T) {
 	assert.Equal(t, -1, results[4])
 	assert.NotNil(t, err)
 
-	<-time.After(time.Second) // TODO wait pipers tails closed
+	<-pp.Tail()
+	fmt.Println(time.Since(ts))
 }
 
 func TestReadmeFirstNErrors(t *testing.T) {
@@ -239,7 +240,8 @@ func TestReadmeErrorsAll(t *testing.T) {
 	assert.Equal(t, context.DeadlineExceeded, errs[3])
 	assert.InDelta(t, 6, int(time.Since(ts).Milliseconds()), 1)
 
-	<-time.After(time.Second) // TODO wait pipers tails closed
+	<-pp.Tail()
+	fmt.Println(time.Since(ts))
 }
 
 func TestReadmeNoErrors(t *testing.T) {

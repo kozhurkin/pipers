@@ -45,7 +45,7 @@ func (pp Pipers[T]) Run(ctx PipersContext, concurrency int) Pipers[T] {
 	return pp
 }
 
-func (pp Pipers[T]) ErrorsChan() chan error {
+func (pp Pipers[T]) ErrorsChan(ctx PipersContext) chan error {
 	errchan := make(chan error, len(pp))
 	wg := sync.WaitGroup{}
 
@@ -63,13 +63,14 @@ func (pp Pipers[T]) ErrorsChan() chan error {
 		wg.Wait()
 		printDebug("close(errchan)")
 		close(errchan)
+		close(ctx.TailDone)
 	}()
 
 	return errchan
 }
 
 func (pp Pipers[T]) FirstNErrors(ctx PipersContext) Errors {
-	errchan := pp.ErrorsChan()
+	errchan := pp.ErrorsChan(ctx)
 	errs := make(Errors, 0, ctx.Limit)
 	for {
 		select {
@@ -91,8 +92,8 @@ func (pp Pipers[T]) FirstNErrors(ctx PipersContext) Errors {
 	}
 }
 
-func (pp Pipers[T]) FirstError(ctx context.Context) error {
-	errchan := pp.ErrorsChan()
+func (pp Pipers[T]) FirstError(ctx PipersContext) error {
+	errchan := pp.ErrorsChan(ctx)
 	select {
 	case err, ok := <-errchan:
 		if !ok {

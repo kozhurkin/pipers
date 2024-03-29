@@ -11,6 +11,7 @@ type PiperSolver[T any] struct {
 	context     context.Context
 	once        sync.Once
 	mu          sync.RWMutex
+	tail        chan struct{}
 }
 
 func (ps *PiperSolver[T]) Add(p Piper[T]) *PiperSolver[T] {
@@ -43,21 +44,19 @@ func (ps *PiperSolver[T]) Run(ctx PipersContext) {
 	})
 }
 
-func (ps *PiperSolver[T]) createContextWithCancelAndLimit(n int) (PipersContext, context.CancelFunc) {
+func (ps *PiperSolver[T]) createPipersContext(n int) (PipersContext, context.CancelFunc) {
 	var cancel context.CancelFunc
 	ctx := ps.context
 	if ps.context == nil {
 		ctx = context.Background()
 	}
-	ctx, cancel = context.WithCancel(ctx)
-	ps.setContext(ctx)
-	return PipersContext{ctx, n}, cancel
-}
-
-func (ps *PiperSolver[T]) setContext(ctx context.Context) {
-	ps.mu.Lock()
-	defer ps.mu.Unlock()
-	ps.context = ctx
+	ps.context, cancel = context.WithCancel(ctx)
+	ps.tail = make(chan struct{})
+	return PipersContext{
+		Context:  ps.context,
+		TailDone: ps.tail,
+		Limit:    n,
+	}, cancel
 }
 
 func (ps *PiperSolver[T]) Ctx() context.Context {
@@ -67,19 +66,19 @@ func (ps *PiperSolver[T]) Ctx() context.Context {
 }
 
 func (ps *PiperSolver[T]) Context(ctx context.Context) *PiperSolver[T] {
-	ps.setContext(ctx)
+	ps.context = ctx
 	return ps
 }
 
 func (ps *PiperSolver[T]) FirstError() error {
-	ctx, cancel := ps.createContextWithCancelAndLimit(1)
+	ctx, cancel := ps.createPipersContext(1)
 	defer cancel()
 	ps.Run(ctx)
 	return ps.Pipers.FirstError(ctx)
 }
 
 func (ps *PiperSolver[T]) FirstNErrors(n int) Errors {
-	ctx, cancel := ps.createContextWithCancelAndLimit(n)
+	ctx, cancel := ps.createPipersContext(n)
 	defer cancel()
 	ps.Run(ctx)
 	return ps.Pipers.FirstNErrors(ctx)
@@ -100,4 +99,8 @@ func (ps *PiperSolver[T]) Resolve() ([]T, error) {
 
 func (ps *PiperSolver[T]) Wait() ([]T, error) {
 	return ps.Resolve()
+}
+
+func (ps *PiperSolver[T]) Tail() chan struct{} {
+	return ps.tail
 }
