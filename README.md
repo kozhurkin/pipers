@@ -54,7 +54,6 @@ Usage
 ✔ [`pp.Context(ctx)`](#ppcontextctx)\
 ✔ [`pp.FirstNErrors(n)`](#ppfirstnerrorsn)\
 ✔ [`pp.ErrorsAll()`](#pperrorsall)\
-✔ [`pp.Ctx()`](#ppctx)\
 ✔ [`pipers.FromFuncsCtx(...funcs)`](#pipersfromfuncsctxfuncs)\
 ✔ [`pipers.FromArgsCtx(args, handler)`](#pipersfromargsctxargs-handler)
 
@@ -278,69 +277,32 @@ func main() {
 }
 ```
 
-### pp.Ctx()
-Returns a wrapped context that will be immediately canceled if an error occurs.\
-Can be used to interrupt execution in parallel goroutines.
+### pipers.FromFuncsCtx(...funcs)
+Provides a wrapped context that will be immediately canceled if an error occurs in one of the goroutines.\
+Can be used to abort execution in parallel goroutines.
 ``` golang
 import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
-    data := []int{2, 4, 8, 10, 12}
 
-    var pp *pipers.PiperSolver[uint8]
-    pp = pipers.FromArgs(data, func(_ int, n int) (uint8, error) {
-        fact := 1
-        for i := 2; i <= n; i++ {
+    //...........vvvvvvvvvvvv......vvv
+    pp := pipers.FromFuncsCtx(func(ctx context.Context) (bool, error) {
+        <-time.After(3 * time.Second)
+        return true, errors.New("throw")
+    }, func(ctx context.Context) (bool, error) {
+        ticker := time.NewTicker(time.Second)
+        for {
             select {
-            case <-time.After(time.Second):
-                if fact *= i; fact > math.MaxUint8 {
-                    return uint8(fact), errors.New("uint8 overflow")
-                }
-            //........vvv
-            case <-pp.Ctx().Done():
-                fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
-                return uint8(fact), nil
+            case <-ticker.C:
+                fmt.Println("tick")
+            case <-ctx.Done():
+                fmt.Println("break")
+                ticker.Stop()
+                return true, nil
             }
         }
-        return uint8(fact), nil
     })
-
-    results, err := pp.Concurrency(3).Resolve()
-
-    fmt.Println(results, err, time.Since(ts))
-    // [2 24 208 0 0] uint8 overflow 5.00s
-    // break 10! iterations skipped: 4
-    // break 12! iterations skipped: 8
-}
-```
-
-### pipers.FromFuncsCtx(...funcs)
-``` golang
-import github.com/kozhurkin/pipers
-
-func main() {
-    ts := time.Now()
-
-    pp := pipers.FromFuncsCtx(
-        func(ctx context.Context) (bool, error) {
-            <-time.After(3 * time.Second)
-            return true, errors.New("throw")
-        },
-        func(ctx context.Context) (bool, error) {
-            ticker := time.NewTicker(time.Second)
-            for {
-                select {
-                case <-ticker.C:
-                    fmt.Println("tick")
-                case <-ctx.Done():
-                    fmt.Println("break")
-                    ticker.Stop()
-                    return true, nil
-                }
-            }
-        },
-    )
 
     results, err := pp.Resolve()
 
@@ -360,6 +322,7 @@ func main() {
     ts := time.Now()
     data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
+    //...........vvvvvvvvvvv............vvv
     pp := pipers.FromArgsCtx(data, func(ctx context.Context, _ int, n int) (uint8, error) {
         fact := 1
         for i := 2; i <= n; i++ {

@@ -274,45 +274,12 @@ func TestReadmeNotEnoughtErrors(t *testing.T) {
 	assert.Equal(t, len(data)-1, len(results))
 }
 
-func TestReadmeCtx(t *testing.T) {
-	var cnt int32
-	ts := time.Now()
-	data := []int{2, 4, 8, 10, 12}
-
-	var pp *pipers.PiperSolver[uint8]
-	pp = pipers.FromArgs(data, func(_ int, n int) (uint8, error) {
-		fact := 1
-		for i := 2; i <= n; i++ {
-			select {
-			case <-time.After(time.Millisecond):
-				if fact *= i; fact > math.MaxUint8 {
-					return uint8(fact), errors.New("uint8 overflow")
-				}
-			case <-pp.Ctx().Done():
-				fmt.Printf("break %v! iterations skipped: %v\n", n, n-i)
-				return uint8(fact), nil
-			}
-		}
-		atomic.AddInt32(&cnt, 1)
-		return uint8(fact), nil
-	})
-
-	results, err := pp.Concurrency(3).Resolve()
-
-	fmt.Println(results, err, time.Since(ts))
-	// [2 24 208 0 0] uint8 overflow 5.00s
-	// break 10! iterations skipped: 4
-	// break 12! iterations skipped: 8
-
-	<-time.After(10 * time.Millisecond)
-	assert.Equal(t, 2, int(atomic.LoadInt32(&cnt)))
-}
-
 func TestReadmeFromArgsCtx(t *testing.T) {
 	var cnt int32
 	ts := time.Now()
 	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 
+	//...........vvvvvvvvvvv............vvv
 	pp := pipers.FromArgsCtx(data, func(ctx context.Context, _ int, n int) (uint8, error) {
 		fact := 1
 		for i := 2; i <= n; i++ {
@@ -344,25 +311,23 @@ func TestReadmeFromArgsCtx(t *testing.T) {
 func TestReadmeFromFuncsCtx(t *testing.T) {
 	ts := time.Now()
 
-	pp := pipers.FromFuncsCtx(
-		func(ctx context.Context) (bool, error) {
-			<-time.After(3 * time.Millisecond)
-			return true, errors.New("throw")
-		},
-		func(ctx context.Context) (bool, error) {
-			ticker := time.NewTicker(time.Millisecond)
-			for {
-				select {
-				case <-ticker.C:
-					fmt.Println("tick")
-				case <-ctx.Done():
-					fmt.Println("break")
-					ticker.Stop()
-					return true, nil
-				}
+	//...........vvvvvvvvvvvv......vvv
+	pp := pipers.FromFuncsCtx(func(ctx context.Context) (bool, error) {
+		<-time.After(3 * time.Millisecond)
+		return true, errors.New("throw")
+	}, func(ctx context.Context) (bool, error) {
+		ticker := time.NewTicker(time.Millisecond)
+		for {
+			select {
+			case <-ticker.C:
+				fmt.Println("tick")
+			case <-ctx.Done():
+				fmt.Println("break")
+				ticker.Stop()
+				return true, nil
 			}
-		},
-	)
+		}
+	})
 
 	results, err := pp.Resolve()
 
