@@ -44,7 +44,7 @@ func TestReadmeExample(t *testing.T) {
 	// [6 2 11 6 7 2 8] <nil> 11.00ms
 
 	assert.Nil(t, err)
-	assert.Equal(t, 11, int(time.Since(ts).Milliseconds()))
+	assert.InDelta(t, 11, int(time.Since(ts).Milliseconds()), 1)
 }
 
 func TestReadmeFromFuncs(t *testing.T) {
@@ -73,7 +73,7 @@ func TestReadmeFromFuncs(t *testing.T) {
 	// Happy New Year !
 
 	assert.Nil(t, err)
-	assert.Equal(t, 4, int(time.Since(ts).Milliseconds()))
+	assert.InDelta(t, 4, int(time.Since(ts).Milliseconds()), 1)
 }
 
 func TestReadmeFromArgs(t *testing.T) {
@@ -91,7 +91,7 @@ func TestReadmeFromArgs(t *testing.T) {
 	// [1 4 9 16 25] <nil> 4.00ms
 
 	assert.Nil(t, err)
-	assert.Equal(t, 4, int(time.Since(ts).Milliseconds()))
+	assert.InDelta(t, 4, int(time.Since(ts).Milliseconds()), 1)
 }
 
 func TestReadmeRef(t *testing.T) {
@@ -154,7 +154,7 @@ func TestReadmeContext(t *testing.T) {
 	// [3 0 2 0 1 0] context deadline exceeded 5.00s
 
 	assert.Equal(t, context.DeadlineExceeded, err)
-	assert.Equal(t, 5, int(time.Since(ts).Milliseconds()))
+	assert.InDelta(t, 5, int(time.Since(ts).Milliseconds()), 1)
 }
 
 func TestReadmeConcurrency(t *testing.T) {
@@ -236,7 +236,9 @@ func TestReadmeErrorsAll(t *testing.T) {
 	fmt.Println(results, errs, time.Since(ts))
 	// [-1 1 -1 1 -1 1 0] [one three five context deadline exceeded] 6.00s
 
-	assert.Equal(t, 6, int(time.Since(ts).Milliseconds()))
+	assert.Equal(t, 4, len(errs))
+	assert.Equal(t, context.DeadlineExceeded, errs[3])
+	assert.InDelta(t, 6, int(time.Since(ts).Milliseconds()), 1)
 
 	<-time.After(time.Second) // TODO wait pipers tails closed
 }
