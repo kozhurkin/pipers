@@ -1,22 +1,22 @@
 package pipers
 
-type Piper[R any] struct {
-	Out chan R
+type Piper[T any] struct {
+	Out chan T
 	Err chan error
-	Job func() (R, error)
+	Job func() (T, error)
 }
 
-func (p Piper[R]) Close() Piper[R] {
+func (p Piper[T]) Close() Piper[T] {
 	printDebug("% v.Close()", p)
 	close(p.Out)
 	close(p.Err)
 	return p
 }
-func (p Piper[R]) Run() Piper[R] {
+func (p Piper[T]) Run() Piper[T] {
 	p.run()
 	return p
 }
-func (p Piper[R]) run() chan error {
+func (p Piper[T]) run() chan error {
 	printDebug("% v.run()  ", p)
 	done := make(chan error, 1)
 	go func() {

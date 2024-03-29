@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 )
 
-type Pipers[R any] []Piper[R]
+type Pipers[T any] []Piper[T]
 
-func (pp Pipers[R]) Run(ctx PipersContext, concurrency int) Pipers[R] {
+func (pp Pipers[T]) Run(ctx PipersContext, concurrency int) Pipers[T] {
 	if concurrency == 0 || concurrency >= len(pp) {
 		for _, p := range pp {
 			p.Run()
@@ -52,7 +52,7 @@ func (pp Pipers[R]) Run(ctx PipersContext, concurrency int) Pipers[R] {
 	return pp
 }
 
-func (pp Pipers[R]) ErrorsChan() chan error {
+func (pp Pipers[T]) ErrorsChan() chan error {
 	errchan := make(chan error, len(pp))
 	wg := sync.WaitGroup{}
 
@@ -75,7 +75,7 @@ func (pp Pipers[R]) ErrorsChan() chan error {
 	return errchan
 }
 
-func (pp Pipers[R]) FirstNErrors(ctx PipersContext) Errors {
+func (pp Pipers[T]) FirstNErrors(ctx PipersContext) Errors {
 	errchan := pp.ErrorsChan()
 	errs := make(Errors, 0, ctx.Limit)
 	for {
@@ -98,7 +98,7 @@ func (pp Pipers[R]) FirstNErrors(ctx PipersContext) Errors {
 	}
 }
 
-func (pp Pipers[R]) FirstError(ctx context.Context) error {
+func (pp Pipers[T]) FirstError(ctx context.Context) error {
 	errchan := pp.ErrorsChan()
 	select {
 	case err, ok := <-errchan:
@@ -111,8 +111,8 @@ func (pp Pipers[R]) FirstError(ctx context.Context) error {
 	}
 }
 
-func (pp Pipers[R]) Results() Results[R] {
-	res := make([]R, len(pp))
+func (pp Pipers[T]) Results() Results[T] {
+	res := make([]T, len(pp))
 	for i, p := range pp {
 		select {
 		case res[i] = <-p.Out:
