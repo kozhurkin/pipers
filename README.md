@@ -322,8 +322,9 @@ import github.com/kozhurkin/pipers
 func main() {
     ts := time.Now()
 
-    //...........vvvvvvvvvvvv......vvv
+    //...........vvvvvvvvvvvv
     pp := pipers.FromFuncsCtx(
+        //...vvv
         func(ctx context.Context) (bool, error) {
             <-time.After(3 * time.Second)
             return true, errors.New("throw")
