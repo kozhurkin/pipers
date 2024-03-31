@@ -65,6 +65,9 @@ func Ref[T any](p *T, f func() (T, error)) func() (interface{}, error) {
 }
 
 func Map[K comparable, T any](keys []K, values []T) map[K]T {
+	if len(keys) != len(values) {
+		return nil
+	}
 	res := make(map[K]T, len(keys))
 	for i, k := range keys {
 		res[k] = values[i]
