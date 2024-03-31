@@ -165,6 +165,9 @@ func main() {
     }
 
     pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
+        defer func() {
+            fmt.Println(i, url, time.Since(ts))
+        }()
         res, err := http.Get(url)
         if err != nil {
             return -1, err
@@ -178,12 +181,11 @@ func main() {
     results, err := pp.Resolve()
 
     fmt.Println(time.Since(ts), results, err)
-    // func(1, https://go.dev) 243.416µs
-    // func(0, https://nodejs.org) 567.041µs
-    // func(2, https://vuejs.org) 362.966375ms
-    // func(3, https://clickhouse.com) 371.109291ms
-    // func(4, https://invalid.link) 660.3065ms
-    // 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+    // 1 https://go.dev 270ms
+    // 2 https://vuejs.org 360ms
+    // 0 https://nodejs.org 440ms
+    // 4 https://invalid.link 442ms
+    // 442ms [200 200 200 0 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 }
 ```
 
@@ -279,7 +281,7 @@ func main() {
 ```
 
 ### pp.Tail()
-As mentioned above, Pipers returns an error immediately.\
+As mentioned above, pipers returns an error immediately.\
 However, concurrently running goroutines may be executed for some time.\
 If you need to be guaranteed to wait for parallel running goroutines to complete, use `pp.Tail()`.
 ``` golang

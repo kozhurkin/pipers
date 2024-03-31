@@ -169,7 +169,9 @@ func TestReadmeConcurrency(t *testing.T) {
 	}
 
 	pp := pipers.FromArgs(urls, func(i int, url string) (int, error) {
-		fmt.Printf("func(%v, %v) %v\n", i, url, time.Since(ts))
+		defer func() {
+			fmt.Println(i, url, time.Since(ts))
+		}()
 		resp, err := httpclient.Get(url)
 		if err != nil {
 			return -1, err
@@ -182,12 +184,11 @@ func TestReadmeConcurrency(t *testing.T) {
 	results, err := pp.Resolve()
 
 	fmt.Println(time.Since(ts), results, err)
-	// func(1, https://go.dev) 243.416µs
-	// func(0, https://nodejs.org) 567.041µs
-	// func(2, https://vuejs.org) 362.966375ms
-	// func(3, https://clickhouse.com) 371.109291ms
-	// func(4, https://invalid.link) 660.3065ms
-	// 661.806125ms [200 200 0 200 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
+	// 1 https://go.dev 270.200083ms
+	// 2 https://vuejs.org 360.896208ms
+	// 0 https://nodejs.org 440.650167ms
+	// 4 https://invalid.link 442.175792ms
+	// 442.23575ms [200 200 200 0 -1 0] Get "https://invalid.link": dial tcp: lookup invalid.link: no such host
 
 	assert.Equal(t, -1, results[4])
 	assert.NotNil(t, err)
@@ -367,6 +368,29 @@ func TestReadmeTail(t *testing.T) {
 
 	assert.InDelta(t, 5, int(time.Since(ts).Milliseconds()), 1)
 	assert.Equal(t, 5, results[4])
+
+	fmt.Println(pipers.Map(args, results))
+}
+
+func TestReadmeZeroLength(t *testing.T) {
+	ts := time.Now()
+	args := []int{}
+
+	pp := pipers.FromArgs(args, func(i int, v int) (int, error) {
+		<-time.After(5 * time.Millisecond)
+		return v, nil
+	})
+
+	err := pp.Concurrency(5).FirstError()
+	fmt.Println(pp.Results(), err, time.Since(ts))
+
+	//...vvvv
+	<-pp.Tail()
+	results := pp.Results()
+	fmt.Println(results, time.Since(ts))
+
+	// [0 0 0 0 0 0 0 0 0] context deadline exceeded 1.00s
+	// [1 2 3 4 5 0 0 0 0] 5.00s
 
 	fmt.Println(pipers.Map(args, results))
 }
