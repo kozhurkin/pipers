@@ -315,22 +315,25 @@ func TestReadmeFromFuncsCtx(t *testing.T) {
 	ts := time.Now()
 
 	//...........vvvvvvvvvvvv......vvv
-	pp := pipers.FromFuncsCtx(func(ctx context.Context) (bool, error) {
-		<-time.After(3 * time.Millisecond)
-		return true, errors.New("throw")
-	}, func(ctx context.Context) (bool, error) {
-		ticker := time.NewTicker(time.Millisecond)
-		for {
-			select {
-			case <-ticker.C:
-				fmt.Println("tick")
-			case <-ctx.Done():
-				fmt.Println("break")
-				ticker.Stop()
-				return true, nil
+	pp := pipers.FromFuncsCtx(
+		func(ctx context.Context) (bool, error) {
+			<-time.After(3 * time.Millisecond)
+			return true, errors.New("throw")
+		},
+		func(ctx context.Context) (bool, error) {
+			ticker := time.NewTicker(time.Millisecond)
+			for {
+				select {
+				case <-ticker.C:
+					fmt.Println("tick")
+				case <-ctx.Done():
+					fmt.Println("break")
+					ticker.Stop()
+					return true, nil
+				}
 			}
-		}
-	})
+		},
+	)
 
 	results, err := pp.Resolve()
 
