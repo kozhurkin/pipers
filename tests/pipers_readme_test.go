@@ -393,5 +393,5 @@ func TestReadmeZeroLength(t *testing.T) {
 
 	fmt.Println(pipers.Map(args, results))
 	fmt.Println(pipers.Map(args, []int{5}))
-	fmt.Println(pipers.Flatten([][]int{}))
+	fmt.Println(pipers.Flatten([][]int{{777}, {999}}))
 }
