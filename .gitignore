@@ -1,3 +1,4 @@
 cmd/
 .idea/
+tests/stackoverflow
 coverage.out

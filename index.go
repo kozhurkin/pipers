@@ -74,3 +74,11 @@ func Map[K comparable, T any](keys []K, values []T) map[K]T {
 	}
 	return res
 }
+
+func Flatten[T any](lists [][]T) []T {
+	var res []T
+	for _, list := range lists {
+		res = append(res, list...)
+	}
+	return res
+}
