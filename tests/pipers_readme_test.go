@@ -387,13 +387,11 @@ func TestReadmeZeroLength(t *testing.T) {
 	err := pp.Concurrency(5).FirstError()
 	fmt.Println(pp.Results(), err, time.Since(ts))
 
-	//...vvvv
 	<-pp.Tail()
 	results := pp.Results()
 	fmt.Println(results, time.Since(ts))
 
-	// [0 0 0 0 0 0 0 0 0] context deadline exceeded 1.00s
-	// [1 2 3 4 5 0 0 0 0] 5.00s
-
 	fmt.Println(pipers.Map(args, results))
+	fmt.Println(pipers.Map(args, []int{5}))
+	fmt.Println(pipers.Flatten([][]int{}))
 }
