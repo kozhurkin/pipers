@@ -9,7 +9,7 @@ Parallelism helper powered by generics.
 
 #### Why is pipers better than sync.WaitGroup or errgroup.Group?
 ✔ Because pipers can catch errors.\
-✔ Pipers collects the results of the goroutines into an array, and preserves order
+✔ Pipers collects the results of the goroutines into an array, and preserves order.\
 ✔ Pipers knows how to return a caught error immediately, without waiting for a response from parallel goroutines.\
 ✔ Pipers allows you to set the number of errors you want to return. `.FirstNErrors(n)` `.ErrorsAll()`\
 ✔ Pipers knows how to take a context as an argument and handle its termination. `.Context(ctx)`\
