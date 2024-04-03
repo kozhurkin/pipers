@@ -388,3 +388,5 @@ func main() {
     // break 8! iterations skipped: 4
 }
 ```
+
+![pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/pipers.png)
