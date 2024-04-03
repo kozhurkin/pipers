@@ -1,4 +1,4 @@
-# pipers 
+# Pipers 
 
 [![pipers status](https://github.com/kozhurkin/pipers/actions/workflows/tests.yml/badge.svg)](https://github.com/kozhurkin/pipers/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kozhurkin/pipers)](https://goreportcard.com/report/github.com/kozhurkin/pipers)
@@ -29,7 +29,7 @@ import github.com/kozhurkin/pipers
 
 func main() {
     ts := time.Now()
-    args := []string{"pipers", "is", "a", "parallelism", "helper", "powered", "by", "generics"}
+    args := []string{"Pipers", "is", "a", "parallelism", "helper", "powered", "by", "generics", "."}
 
     pp := pipers.FromArgs(args, func(i int, word string) (int, error) {
         length := len(word)
@@ -41,7 +41,7 @@ func main() {
     results, err := pp.Resolve()
 
     fmt.Println(results, err, time.Since(ts))
-    // [6 2 1 11 6 7 2 8] <nil> 11.00s
+    // [6 2 1 11 6 7 2 8 1] <nil> 11.00s
 }
 ```
 
