@@ -389,4 +389,4 @@ func main() {
 }
 ```
 
-![pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/pipers.png)
+![pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/piper.png)
