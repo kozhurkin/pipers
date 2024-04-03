@@ -7,7 +7,7 @@
 
 ![pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/piper.png)
 
-#### Why is pipers better than sync.WaitGroup or errgroup.Group?
+#### Why are Pipers better than sync.WaitGroup or errgroup.Group?
 ✔ Because pipers can catch errors.\
 ✔ Pipers collects the results of the goroutines into an array, and preserves order.\
 ✔ Pipers knows how to return a caught error immediately, without waiting for a response from parallel goroutines.\
