@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os/exec"
 	"reflect"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -394,4 +395,20 @@ func TestReadmeZeroLength(t *testing.T) {
 	fmt.Println(pipers.Map(args, results))
 	fmt.Println(pipers.Map(args, []int{5}))
 	fmt.Println(pipers.Flatten([][]int{{777}, {999}}))
+}
+
+func TestReadmeCheck(t *testing.T) {
+	carriers := []int{1, 2, 3, 4, 5}
+	errs := make([]error, len(carriers))
+	quotes := make([]int, len(carriers))
+	var wg sync.WaitGroup
+	for i, c := range carriers {
+		wg.Add(1)
+		go func(i int, c int) {
+			defer wg.Done()
+			quotes[i], errs[i] = c*c, nil
+		}(i, c)
+	}
+	wg.Wait()
+	fmt.Println(errs, quotes)
 }
