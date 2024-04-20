@@ -389,4 +389,4 @@ func main() {
 }
 ```
 
-<img title="The End." src="https://i.imgur.com/YBEUsj2.png" width="200" height="200">
+<img title="The End." src="https://raw.githubusercontent.com/kozhurkin/pipers/master/logo.png" width="200" height="200">
