@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/kozhurkin/pipers/graph/badge.svg?token=TTDJSWUO7W)](https://codecov.io/gh/kozhurkin/pipers)
 [![GitHub Release](https://img.shields.io/github/release/kozhurkin/pipers.svg)]()
 
-![Pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/piper.png)
+![Pipers](https://raw.githubusercontent.com/kozhurkin/pipers/master/img/piper.png)
 
 #### Why are Pipers better than sync.WaitGroup or errgroup.Group?
 ✔ Because pipers can catch errors.\
@@ -389,4 +389,4 @@ func main() {
 }
 ```
 
-<img title="The End." src="https://raw.githubusercontent.com/kozhurkin/pipers/master/logo2.png" width="200" height="200">
+<img title="The End." src="https://raw.githubusercontent.com/kozhurkin/pipers/master/img/logo2.png" width="200" height="200">
