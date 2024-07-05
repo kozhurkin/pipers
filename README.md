@@ -13,7 +13,7 @@
 ✔ Pipers knows how to return a caught error immediately, without waiting for a response from parallel goroutines.\
 ✔ Pipers allows you to set the number of errors you want to return. `.FirstNErrors(n)` `.ErrorsAll()`\
 ✔ Pipers knows how to take a context as an argument and handle its termination. `.Context(ctx)`\
-✔ Pipers knows how to limit the number of simultaneously executed goroutines. `.Concurrecy(n)`\
+✔ Pipers knows how to limit the number of simultaneously executed goroutines. `.Concurrency(n)`\
 ✔ Pipers allow you to write cleaner and more compact code.
 
 Installing
