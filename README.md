@@ -173,7 +173,7 @@ func main() {
         if err != nil {
             return -1, err
         }
-        return res.StatusCode, err
+        return res.StatusCode, nil
     })
 
     // vvvvvvvvvvv

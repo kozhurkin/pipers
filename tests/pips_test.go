@@ -14,13 +14,11 @@ func TestPips(t *testing.T) {
 	pb := pips.NewPip(func() int { <-time.After(2 * time.Second); return 2 })
 	a, b := <-pa, <-pb
 	fmt.Println(a, b, time.Since(ts))
-	delta := int(time.Now().Sub(ts).Seconds())
+	delta := int(time.Since(ts).Seconds())
 
 	assert.Equal(t, delta, 2)
 	assert.Equal(t, a, 1)
 	assert.Equal(t, b, 2)
-
-	return
 }
 
 func TestPipsFromFuncs(t *testing.T) {
@@ -30,13 +28,11 @@ func TestPipsFromFuncs(t *testing.T) {
 		func() int { <-time.After(2 * time.Second); return 2 },
 	)
 	fmt.Println(res, time.Since(ts))
-	delta := int(time.Now().Sub(ts).Seconds())
+	delta := int(time.Since(ts).Seconds())
 
 	assert.Equal(t, delta, 2)
 	assert.Equal(t, res[0], 1)
 	assert.Equal(t, res[1], 2)
-
-	return
 }
 
 func TestPipsFromArgs(t *testing.T) {
@@ -46,11 +42,9 @@ func TestPipsFromArgs(t *testing.T) {
 		return a
 	})
 	fmt.Println(res, time.Since(ts))
-	delta := int(time.Now().Sub(ts).Seconds())
+	delta := int(time.Since(ts).Seconds())
 
 	assert.Equal(t, delta, 2)
 	assert.Equal(t, res[0], 1)
 	assert.Equal(t, res[1], 2)
-
-	return
 }

@@ -37,7 +37,7 @@ func bench(b *testing.B, asyncFunc func(context.Context, []int, func(int, int) (
 		length := len(data)
 		for c := 0; c <= 10; c++ {
 			for i := 1; i <= b.N; i++ {
-				asyncFunc(ctx, data, func(i int, k int) (int, error) {
+				_, _ = asyncFunc(ctx, data, func(i int, k int) (int, error) {
 					rnd := rand.Intn(1000)
 					runtime.Gosched()
 					//<-time.After(time.Duration(rnd) * time.Nanosecond)

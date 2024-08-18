@@ -3,7 +3,6 @@ package launcher
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"sync/atomic"
 	"testing"
@@ -94,7 +93,7 @@ func (l Launcher) Run() *Launcher {
 			resultOk := expect.Result.IsEqual(result)
 			errorOk := errors.Is(err, expect.Error)
 
-			l.T.Log(fmt.Sprintf(
+			l.T.Logf(
 				"%v :  c=%v, %v \t %v %v \t %v %v      %v %v      %v (%v)",
 				task.Desc,
 				expect.Concurrency,
@@ -107,7 +106,7 @@ func (l Launcher) Run() *Launcher {
 				result,
 				formatBool(errorOk),
 				err,
-			))
+			)
 
 			ok := cntOk && durationOk && resultOk && errorOk
 
