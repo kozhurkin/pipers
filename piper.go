@@ -6,6 +6,14 @@ type Piper[T any] struct {
 	Job func() (T, error)
 }
 
+func NewPiper[T any](f func() (T, error)) Piper[T] {
+	return Piper[T]{
+		Val: make(chan T, 1),
+		Err: make(chan error, 1),
+		Job: f,
+	}
+}
+
 func (p Piper[T]) Close() Piper[T] {
 	printDebug("% v.Close()", p)
 	close(p.Val)

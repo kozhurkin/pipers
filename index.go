@@ -6,14 +6,6 @@ func printDebug(template string, rest ...interface{}) {
 	//fmt.Printf("pipers:  [ %v ]    "+template+"\n", append([]interface{}{time.Now().String()[0:25]}, rest...)...)
 }
 
-func NewPiper[T any](f func() (T, error)) Piper[T] {
-	return Piper[T]{
-		Val: make(chan T, 1),
-		Err: make(chan error, 1),
-		Job: f,
-	}
-}
-
 func FromFuncs[T any](funcs ...func() (T, error)) *PiperSolver[T] {
 	ps := PiperSolver[T]{
 		pipers: make(Pipers[T], 0, len(funcs)),
