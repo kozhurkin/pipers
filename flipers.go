@@ -36,10 +36,10 @@ func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
 			case <-ctx.Done():
 				return // context canceled
 			case traffic <- struct{}{}:
-				if ctx.Err() != nil {
-					return
-				}
 				go func() {
+					if ctx.Err() != nil {
+						return
+					}
 					p.Run()
 					<-traffic
 				}()
