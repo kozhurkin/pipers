@@ -60,11 +60,14 @@ func (pp Flipers[T]) ErrorsChan(ctx context.Context) chan error {
 			defer wg.Done()
 			select {
 			case <-ctx.Done():
-				return
-			case <-p.Done():
-				if _, err := p.Wait(); err != nil {
-					errchan <- err
+				if !p.Started() {
+					return
 				}
+			case <-p.Done():
+				// already done
+			}
+			if _, err := p.Wait(); err != nil {
+				errchan <- err
 			}
 		}()
 	}
@@ -75,6 +78,25 @@ func (pp Flipers[T]) ErrorsChan(ctx context.Context) chan error {
 	}()
 
 	return errchan
+}
+
+// Tail возвращает канал, который будет закрыт после завершения всех Flight,
+// которые к моменту вызова уже были запущены (p.Started() == true).
+// Предполагается, что используется после FirstError/FirstNErrors/ErrorsAll,
+// когда запуск новых Flight уже прекращён.
+func (pp Flipers[T]) Tail() <-chan struct{} {
+	ch := make(chan struct{})
+
+	go func() {
+		for _, p := range pp {
+			if p.Started() {
+				<-p.Done()
+			}
+		}
+		close(ch)
+	}()
+
+	return ch
 }
 
 // FirstNErrors возвращает до limit первых ошибок из Flipers.
