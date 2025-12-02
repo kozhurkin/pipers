@@ -37,11 +37,16 @@ func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
 				return // context canceled
 			case traffic <- struct{}{}:
 				go func() {
-					if ctx.Err() != nil {
+					defer func() {
+						<-traffic
+					}()
+					select {
+					case <-ctx.Done():
+						// контекст уже отменён — не запускаем задачу
 						return
+					default:
+						p.Run()
 					}
-					p.Run()
-					<-traffic
 				}()
 			}
 		}
