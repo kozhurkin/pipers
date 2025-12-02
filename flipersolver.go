@@ -55,7 +55,7 @@ func (ps *FliperSolver[T]) FirstError() error {
 	ctx, cancel := context.WithCancel(ps.getContext())
 	defer cancel()
 	ps.flipers.Run(ctx, ps.concurrency)
-	return ps.flipers.FirstError(ctx)
+	return ps.flipers.FirstError(ctx, cancel)
 }
 
 func (ps *FliperSolver[T]) FirstNErrors(n int) Errors {

@@ -134,13 +134,14 @@ func (pp Flipers[T]) FirstNErrors(ctx context.Context, limit int) Errors {
 
 // FirstError возвращает первую ошибку из Flipers либо nil, если ошибок не было.
 // Если контекст завершён раньше, возвращается ошибка контекста.
-func (pp Flipers[T]) FirstError(ctx context.Context) error {
+func (pp Flipers[T]) FirstError(ctx context.Context, cancel context.CancelFunc) error {
 	errchan := pp.ErrorsChan(ctx)
 	select {
 	case err, ok := <-errchan:
 		if !ok {
 			return nil
 		}
+		cancel()
 		return err
 	case <-ctx.Done():
 		return ctx.Err()
