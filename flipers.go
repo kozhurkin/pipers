@@ -37,16 +37,8 @@ func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
 				return // context canceled
 			case traffic <- struct{}{}:
 				go func() {
-					defer func() {
-						<-traffic
-					}()
-					select {
-					case <-ctx.Done():
-						// контекст уже отменён — не запускаем задачу
-						return
-					default:
-						p.Run()
-					}
+					p.Run()
+					<-traffic
 				}()
 			}
 		}
@@ -88,25 +80,6 @@ func (pp Flipers[T]) ErrorsChan(ctx context.Context) chan error {
 	return errchan
 }
 
-// Tail возвращает канал, который будет закрыт после завершения всех Flight,
-// которые к моменту вызова уже были запущены (p.Started() == true).
-// Предполагается, что используется после FirstError/FirstNErrors/ErrorsAll,
-// когда запуск новых Flight уже прекращён.
-func (pp Flipers[T]) Tail() <-chan struct{} {
-	ch := make(chan struct{})
-
-	go func() {
-		for _, p := range pp {
-			if p.Started() {
-				<-p.Done()
-			}
-		}
-		close(ch)
-	}()
-
-	return ch
-}
-
 // FirstNErrors возвращает до limit первых ошибок из Flipers.
 // Если limit <= 0, собираются все ошибки. В случае завершения контекста
 // в результирующий срез также добавляется ошибка контекста.
@@ -135,14 +108,13 @@ func (pp Flipers[T]) FirstNErrors(ctx context.Context, limit int) Errors {
 
 // FirstError возвращает первую ошибку из Flipers либо nil, если ошибок не было.
 // Если контекст завершён раньше, возвращается ошибка контекста.
-func (pp Flipers[T]) FirstError(ctx context.Context, cancel context.CancelFunc) error {
+func (pp Flipers[T]) FirstError(ctx context.Context) error {
 	errchan := pp.ErrorsChan(ctx)
 	select {
 	case err, ok := <-errchan:
 		if !ok {
 			return nil
 		}
-		cancel()
 		return err
 	case <-ctx.Done():
 		return ctx.Err()
@@ -162,4 +134,28 @@ func (pp Flipers[T]) Results() Results[T] {
 		}
 	}
 	return res
+}
+
+func (ps Flipers[T]) Resolve(ctx context.Context) (Results[T], error) {
+	err := ps.FirstError(ctx)
+	return ps.Results(), err
+}
+
+// Tail возвращает канал, который будет закрыт после завершения всех Flight,
+// которые к моменту вызова уже были запущены (p.Started() == true).
+// Предполагается, что используется после FirstError/FirstNErrors/ErrorsAll,
+// когда запуск новых Flight уже прекращён.
+func (pp Flipers[T]) Tail() <-chan struct{} {
+	ch := make(chan struct{})
+
+	go func() {
+		for _, p := range pp {
+			if p.Started() {
+				<-p.Done()
+			}
+		}
+		close(ch)
+	}()
+
+	return ch
 }
