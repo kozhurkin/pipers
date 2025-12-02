@@ -3,12 +3,13 @@ package tests
 import (
 	"context"
 	"errors"
-	"github.com/kozhurkin/pipers"
 	"math/rand"
 	"runtime"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/kozhurkin/pipers"
 )
 
 var datas = func() [][]int {
