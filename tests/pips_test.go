@@ -2,10 +2,11 @@ package tests
 
 import (
 	"fmt"
-	"github.com/kozhurkin/pipers/pips"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/kozhurkin/pipers/pips"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPips(t *testing.T) {

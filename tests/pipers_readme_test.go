@@ -5,9 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/kozhurkin/pipers"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/goleak"
 	"math"
 	"net/http"
 	"os/exec"
@@ -16,6 +13,10 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/kozhurkin/pipers"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/goleak"
 )
 
 var httpclient = http.Client{
@@ -194,6 +195,7 @@ func TestReadmeConcurrency(t *testing.T) {
 	assert.Equal(t, -1, results[4])
 	assert.NotNil(t, err)
 
+	fmt.Println("<-pp.Tail()")
 	<-pp.Tail()
 	fmt.Println(time.Since(ts))
 }

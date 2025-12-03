@@ -11,7 +11,6 @@ type FliperSolver[T any] struct {
 	flipers     Flipers[T]
 	concurrency int
 	context     context.Context
-	tail        chan struct{}
 	mu          sync.Mutex
 }
 
@@ -78,6 +77,6 @@ func (ps *FliperSolver[T]) Resolve() ([]T, error) {
 	return ps.Results(), err
 }
 
-func (ps *FliperSolver[T]) Tail() chan struct{} {
-	return ps.tail
+func (ps *FliperSolver[T]) Tail() <-chan struct{} {
+	return ps.flipers.Tail()
 }

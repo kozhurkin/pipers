@@ -3,10 +3,11 @@ package tests
 import (
 	"context"
 	"errors"
-	"github.com/kozhurkin/pipers"
-	"github.com/kozhurkin/pipers/tests/launcher"
 	"testing"
 	"time"
+
+	"github.com/kozhurkin/pipers"
+	"github.com/kozhurkin/pipers/tests/launcher"
 )
 
 const TIME_UNIT = 3 * time.Millisecond
