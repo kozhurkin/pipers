@@ -10,7 +10,7 @@ import (
 
 // Flipers представляет собой набор указателей на Flight[T],
 // над которыми выполняются групповые операции.
-type Flipers[T any] []*flight.FlightFlow[T]
+type Flipers[T any] []*flight.Flight[T]
 
 // Run запускает вычисления для всех Flight из набора с учётом ограничения
 // по concurrency (количество одновременно работающих задач).

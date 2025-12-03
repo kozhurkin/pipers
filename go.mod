@@ -3,7 +3,7 @@ module github.com/kozhurkin/pipers
 go 1.20
 
 require (
-	github.com/kozhurkin/singleflight v1.0.3
+	github.com/kozhurkin/singleflight v1.0.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/goleak v1.2.1
 )

@@ -34,7 +34,7 @@ func (ps *FliperSolver[T]) Concurrency(concurrency int) *FliperSolver[T] {
 	return ps
 }
 
-func (ps *FliperSolver[T]) Add(p *flight.FlightFlow[T]) *FliperSolver[T] {
+func (ps *FliperSolver[T]) Add(p *flight.Flight[T]) *FliperSolver[T] {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 	ps.flipers = append(ps.flipers, p)
@@ -42,12 +42,12 @@ func (ps *FliperSolver[T]) Add(p *flight.FlightFlow[T]) *FliperSolver[T] {
 }
 
 func (ps *FliperSolver[T]) AddFunc(f func() (T, error)) *FliperSolver[T] {
-	p := flight.NewFlightFlow(f)
+	p := flight.NewFlight(f)
 	return ps.Add(p)
 }
 
 func (ps *FliperSolver[T]) AddFuncCtx(f func(ctx context.Context) (T, error)) *FliperSolver[T] {
-	p := flight.NewFlightFlow(func() (T, error) {
+	p := flight.NewFlight(func() (T, error) {
 		return f(ps.context)
 	})
 	return ps.Add(p)
