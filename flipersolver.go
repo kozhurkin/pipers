@@ -54,14 +54,14 @@ func (ps *FliperSolver[T]) AddFuncCtx(f func(ctx context.Context) (T, error)) *F
 func (ps *FliperSolver[T]) FirstError() error {
 	ctx, cancel := context.WithCancel(ps.getContext())
 	defer cancel()
-	ps.flipers.Run(ctx, ps.concurrency)
+	ps.flipers.Run(ctx, ps.concurrency, 1)
 	return ps.flipers.FirstError(ctx)
 }
 
 func (ps *FliperSolver[T]) FirstNErrors(n int) Errors {
 	ctx, cancel := context.WithCancel(ps.getContext())
 	defer cancel()
-	ps.flipers.Run(ctx, ps.concurrency)
+	ps.flipers.Run(ctx, ps.concurrency, n)
 	return ps.flipers.FirstNErrors(ctx, n)
 }
 

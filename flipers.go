@@ -3,6 +3,7 @@ package pipers
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 
 	"github.com/kozhurkin/pipers/flight"
 )
@@ -16,7 +17,7 @@ type Flipers[T any] []*flight.Flight[T]
 // Если concurrency == 0 или больше числа задач, все задачи запускаются
 // параллельно без ограничения.
 // Остановка дальнейших запусков контролируется только переданным контекстом.
-func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
+func (pp Flipers[T]) Run(ctx context.Context, concurrency, errlimit int) Flipers[T] {
 	if concurrency == 0 || concurrency >= len(pp) {
 		for _, p := range pp {
 			go p.Run()
@@ -30,6 +31,12 @@ func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
 			close(traffic)
 		}()
 
+		var errorCount int32
+		var errorLimit int32 = int32(errlimit)
+
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
 		for _, p := range pp {
 			p := p
 			select {
@@ -38,7 +45,12 @@ func (pp Flipers[T]) Run(ctx context.Context, concurrency int) Flipers[T] {
 			case traffic <- struct{}{}:
 				go func() {
 					p.Run()
-					<-traffic
+					_, err := p.Wait()
+					if err != nil && errorLimit > 0 && atomic.AddInt32(&errorCount, 1) >= errorLimit {
+						cancel()
+					} else {
+						<-traffic
+					}
 				}()
 			}
 		}
