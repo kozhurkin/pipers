@@ -5,12 +5,12 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/kozhurkin/pipers/flight"
+	"github.com/kozhurkin/singleflight/flight"
 )
 
 // Flipers представляет собой набор указателей на Flight[T],
 // над которыми выполняются групповые операции.
-type Flipers[T any] []*flight.Flight[T]
+type Flipers[T any] []*flight.FlightFlow[T]
 
 // Run запускает вычисления для всех Flight из набора с учётом ограничения
 // по concurrency (количество одновременно работающих задач).

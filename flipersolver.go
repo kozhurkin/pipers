@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/kozhurkin/pipers/flight"
+	"github.com/kozhurkin/singleflight/flight"
 )
 
 type FliperSolver[T any] struct {
@@ -34,7 +34,7 @@ func (ps *FliperSolver[T]) Concurrency(concurrency int) *FliperSolver[T] {
 	return ps
 }
 
-func (ps *FliperSolver[T]) Add(p *flight.Flight[T]) *FliperSolver[T] {
+func (ps *FliperSolver[T]) Add(p *flight.FlightFlow[T]) *FliperSolver[T] {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 	ps.flipers = append(ps.flipers, p)
@@ -42,12 +42,12 @@ func (ps *FliperSolver[T]) Add(p *flight.Flight[T]) *FliperSolver[T] {
 }
 
 func (ps *FliperSolver[T]) AddFunc(f func() (T, error)) *FliperSolver[T] {
-	p := flight.NewFlight(f)
+	p := flight.NewFlightFlow(f)
 	return ps.Add(p)
 }
 
 func (ps *FliperSolver[T]) AddFuncCtx(f func(ctx context.Context) (T, error)) *FliperSolver[T] {
-	p := flight.NewFlight(func() (T, error) {
+	p := flight.NewFlightFlow(func() (T, error) {
 		return f(ps.context)
 	})
 	return ps.Add(p)
