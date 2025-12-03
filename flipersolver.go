@@ -14,11 +14,14 @@ type FliperSolver[T any] struct {
 	mu          sync.Mutex
 }
 
-func (ps *FliperSolver[T]) getContext() context.Context {
-	if ps.context == nil {
-		return context.Background()
+func (ps *FliperSolver[T]) initContext() (context.Context, context.CancelFunc) {
+	var cancel context.CancelFunc
+	ctx := ps.context
+	if ctx == nil {
+		ctx = context.Background()
 	}
-	return ps.context
+	ps.context, cancel = context.WithCancel(ctx)
+	return ps.context, cancel
 }
 
 func (ps *FliperSolver[T]) Context(ctx context.Context) *FliperSolver[T] {
@@ -45,20 +48,20 @@ func (ps *FliperSolver[T]) AddFunc(f func() (T, error)) *FliperSolver[T] {
 
 func (ps *FliperSolver[T]) AddFuncCtx(f func(ctx context.Context) (T, error)) *FliperSolver[T] {
 	p := flight.NewFlight(func() (T, error) {
-		return f(ps.getContext())
+		return f(ps.context)
 	})
 	return ps.Add(p)
 }
 
 func (ps *FliperSolver[T]) FirstError() error {
-	ctx, cancel := context.WithCancel(ps.getContext())
+	ctx, cancel := ps.initContext()
 	defer cancel()
 	ps.flipers.Run(ctx, ps.concurrency, 1)
 	return ps.flipers.FirstError(ctx)
 }
 
 func (ps *FliperSolver[T]) FirstNErrors(n int) Errors {
-	ctx, cancel := context.WithCancel(ps.getContext())
+	ctx, cancel := ps.initContext()
 	defer cancel()
 	ps.flipers.Run(ctx, ps.concurrency, n)
 	return ps.flipers.FirstNErrors(ctx, n)
