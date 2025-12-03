@@ -6,9 +6,9 @@ func printDebug(template string, rest ...interface{}) {
 	//fmt.Printf("pipers:  [ %v ]    "+template+"\n", append([]interface{}{time.Now().String()[0:25]}, rest...)...)
 }
 
-func FromFuncs[T any](funcs ...func() (T, error)) *PiperSolver[T] {
-	ps := PiperSolver[T]{
-		pipers: make(Pipers[T], 0, len(funcs)),
+func FromFuncs[T any](funcs ...func() (T, error)) *FliperSolver[T] {
+	ps := FliperSolver[T]{
+		flipers: make(Flipers[T], 0, len(funcs)),
 	}
 	for _, f := range funcs {
 		ps.AddFunc(f)
@@ -16,9 +16,9 @@ func FromFuncs[T any](funcs ...func() (T, error)) *PiperSolver[T] {
 	return &ps
 }
 
-func FromFuncsCtx[T any](funcs ...func(context.Context) (T, error)) *PiperSolver[T] {
-	ps := PiperSolver[T]{
-		pipers: make(Pipers[T], 0, len(funcs)),
+func FromFuncsCtx[T any](funcs ...func(context.Context) (T, error)) *FliperSolver[T] {
+	ps := FliperSolver[T]{
+		flipers: make(Flipers[T], 0, len(funcs)),
 	}
 	for _, f := range funcs {
 		ps.AddFuncCtx(f)
@@ -26,7 +26,7 @@ func FromFuncsCtx[T any](funcs ...func(context.Context) (T, error)) *PiperSolver
 	return &ps
 }
 
-func FromArgs[T any, A any](args []A, f func(int, A) (T, error)) *PiperSolver[T] {
+func FromArgs[T any, A any](args []A, f func(int, A) (T, error)) *FliperSolver[T] {
 	funcs := make([]func() (T, error), len(args))
 	for i, v := range args {
 		i, v := i, v
@@ -37,7 +37,7 @@ func FromArgs[T any, A any](args []A, f func(int, A) (T, error)) *PiperSolver[T]
 	return FromFuncs(funcs...)
 }
 
-func FromArgsCtx[T any, A any](args []A, f func(context.Context, int, A) (T, error)) *PiperSolver[T] {
+func FromArgsCtx[T any, A any](args []A, f func(context.Context, int, A) (T, error)) *FliperSolver[T] {
 	funcs := make([]func(ctx context.Context) (T, error), len(args))
 	for i, v := range args {
 		i, v := i, v
